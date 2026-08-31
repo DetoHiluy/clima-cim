@@ -1,6 +1,6 @@
 const TRAFFIC_CIM={lat:-3.845481,lon:-38.460447,radiusNm:15,maxFeedAgeMin:10,maxPositionAgeSec:30};
 const DIRECT_TRAFFIC=`https://api.airplanes.live/v2/point/${TRAFFIC_CIM.lat}/${TRAFFIC_CIM.lon}/${TRAFFIC_CIM.radiusNm}`;
-const RAW_TRAFFIC='https://raw.githubusercontent.com/DetoHiluy/clima-cim/live-data/data/traffic.json';
+const RAW_TRAFFIC='https://raw.githubusercontent.com/DetoHiluy/clima-cim/traffic-data/data/traffic.json';
 let trafficMap=null,trafficLayer=null;
 
 function trafficDistanceKm(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
