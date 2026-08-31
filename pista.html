@@ -4,48 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06131f">
-  <meta name="description" content="View operacional da pista 13/31 do Centro Integrado de Modelismo — CIM.">
-  <title>CIM · Pista 13/31</title>
+  <meta name="description" content="Pista 13/31 e espaço de voo regulamentar do Centro Integrado de Modelismo — CIM.">
+  <title>CIM · Pista e espaço de voo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="pista.css">
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <a class="brand" href="index.html" aria-label="Voltar ao clima do CIM">
+      <a class="brand" href="index.html">
         <span class="brand-mark">CIM</span>
         <span><small>Centro Integrado de Modelismo</small><strong>Pista 13 / 31</strong></span>
       </a>
       <nav class="nav" aria-label="Navegação principal">
         <a href="index.html">Clima</a>
-        <a class="active" href="pista.html">Pista</a>
+        <a class="active" href="pista.html">Pista e espaço de voo</a>
       </nav>
       <div class="clock"><strong id="clock">--:--:--</strong><span id="date">--</span></div>
     </header>
 
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Carta visual do campo</p>
+        <p class="eyebrow">Pista do CIM</p>
         <h1>230 m <span>×</span> 12 m</h1>
-        <p class="hero-sub">Eixo magnético operacional <b>130° / 310°</b>. A representação abaixo mantém a proporção real aproximada de comprimento e largura da pista.</p>
+        <p class="hero-sub">Pista 13/31, eixo operacional 130° / 310°. Abaixo estão reunidas a leitura do vento, a pista recomendada e a representação do espaço de voo conforme a regra geral vigente do DECEA.</p>
       </div>
       <div id="operation-pill" class="operation-pill loading"><span></span><strong>Consultando vento</strong></div>
     </section>
 
-    <section class="art-card" aria-label="Representação artística e operacional da pista do CIM">
+    <section class="art-card">
       <div class="terrain-grid"></div>
-      <div class="compass" aria-hidden="true">
-        <span class="n">N</span><span class="e">L</span><span class="s">S</span><span class="w">O</span>
-        <i class="axis-ns"></i><i class="axis-ew"></i>
-      </div>
-
-      <div id="wind-vector" class="wind-vector" aria-hidden="true">
-        <span class="wind-arrow">➤</span>
-        <strong id="wind-vector-label">-- km/h</strong>
-      </div>
-
+      <div class="compass"><span class="n">N</span><span class="e">L</span><span class="s">S</span><span class="w">O</span><i class="axis-ns"></i><i class="axis-ew"></i></div>
+      <div id="wind-vector" class="wind-vector"><span class="wind-arrow">➤</span><strong id="wind-vector-label">-- km/h</strong></div>
       <div class="runway-stage">
         <div class="runway-shadow"></div>
-        <div class="runway" aria-label="Pista 13 31, 230 metros por 12 metros">
+        <div class="runway">
           <div class="threshold threshold-13"><b>13</b><span></span></div>
           <div class="centerline"></div>
           <div class="runway-dim length-dim"><span>230 m</span></div>
@@ -53,34 +46,16 @@
           <div class="threshold threshold-31"><b>31</b><span></span></div>
         </div>
       </div>
-
-      <div class="art-caption">
-        <span>Centro Integrado de Modelismo</span>
-        <strong>CIM · Eusébio, Ceará</strong>
-      </div>
+      <div class="art-caption"><span>Centro Integrado de Modelismo</span><strong>CIM · Eusébio, Ceará</strong></div>
     </section>
 
     <section class="brief-grid">
-      <article class="panel primary">
-        <p class="eyebrow">Pista recomendada</p>
-        <strong id="preferred-runway" class="big-value">--</strong>
-        <p id="runway-reason">Calculando a melhor cabeceira para o vento atual.</p>
-      </article>
-      <article class="panel">
-        <span>Vento atual</span><strong id="wind">--</strong><small id="wind-dir">--</small>
-      </article>
-      <article class="panel">
-        <span>Rajadas</span><strong id="gust">--</strong><small id="gust-delta">--</small>
-      </article>
-      <article class="panel">
-        <span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small>
-      </article>
-      <article class="panel">
-        <span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small>
-      </article>
-      <article class="panel">
-        <span>Ângulo relativo</span><strong id="relative-angle">--</strong><small id="angle-label">--</small>
-      </article>
+      <article class="panel primary"><p class="eyebrow">Pista recomendada</p><strong id="preferred-runway" class="big-value">--</strong><p id="runway-reason">Calculando a melhor cabeceira para o vento atual.</p></article>
+      <article class="panel"><span>Vento atual</span><strong id="wind">--</strong><small id="wind-dir">--</small></article>
+      <article class="panel"><span>Rajadas</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
+      <article class="panel"><span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small></article>
+      <article class="panel"><span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small></article>
+      <article class="panel"><span>Ângulo relativo</span><strong id="relative-angle">--</strong><small id="angle-label">--</small></article>
     </section>
 
     <section class="forecast-panel">
@@ -88,20 +63,28 @@
       <div id="trend" class="trend"></div>
     </section>
 
-    <section class="map-panel">
-      <div class="section-heading">
-        <div><p class="eyebrow">Localização</p><h2>Área do CIM</h2></div>
-        <a href="https://www.openstreetmap.org/?mlat=-3.8455&mlon=-38.4596#map=17/-3.8455/-38.4596" target="_blank" rel="noopener noreferrer">Abrir mapa ↗</a>
+    <section class="airspace-panel">
+      <div class="section-heading"><div><p class="eyebrow">Espaço de voo</p><h2>Limites regulamentares sobre a área do CIM</h2></div><span>DECEA · regra geral recreativa</span></div>
+      <div class="airspace-summary">
+        <article><strong>300 m</strong><span>distância horizontal máxima do piloto</span></article>
+        <article><strong>60 m</strong><span>200 ft AGL · altura máxima geral</span></article>
+        <article><strong>VLOS</strong><span>contato visual direto obrigatório</span></article>
       </div>
-      <div class="map-wrap"><iframe title="Mapa da área do Centro Integrado de Modelismo" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-38.4630%2C-3.8485%2C-38.4562%2C-3.8427&layer=mapnik&marker=-3.8455%2C-38.4596"></iframe></div>
-      <p class="source">Base cartográfica: OpenStreetMap. Coordenadas de referência do CIM: −3,8455 / −38,4596.</p>
+      <div id="flight-map" class="flight-map"></div>
+      <div class="airspace-note"><p><strong>Azul:</strong> raio regulamentar de 300 m medido a partir da posição de referência do piloto.</p><p><strong>Vermelho:</strong> setor atrás da linha dos pilotos, tratado como regra operacional local do CIM, separado da norma do DECEA.</p></div>
+    </section>
+
+    <section class="profile-panel">
+      <div><p class="eyebrow">Perfil vertical</p><h2>60 m / 200 ft AGL</h2><p>Para a operação recreativa, esta view adota o limite geral mais restritivo publicado pelo DECEA. A referência horizontal é de 300 m a partir do piloto, mantendo VLOS.</p></div>
+      <div class="height-graphic"><div class="height-line"><strong>60 m · 200 ft</strong><span>limite geral DECEA</span></div><div class="ground-line">SOLO / PISTA · AGL 0</div></div>
     </section>
 
     <footer>
-      <p>Dimensões atuais informadas pelo CIM: <strong>230 m × 12 m</strong>. A view é uma representação operacional; não deve ser usada como carta aeronáutica oficial.</p>
-      <p>Dados meteorológicos: Open-Meteo.</p>
+      <p>Pista atual do CIM: <strong>230 m × 12 m</strong>, cabeceiras 13/31.</p>
+      <p>Espaço de voo: referência geral DECEA — 300 m horizontais, 60 m / 200 ft AGL e VLOS. Esta página é auxiliar e não substitui autorizações ou restrições específicas aplicáveis.</p>
     </footer>
   </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="pista.js"></script>
 </body>
 </html>
