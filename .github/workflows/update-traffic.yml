@@ -1,0 +1,91 @@
+name: Atualizar tráfego aéreo CIM
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/update-traffic.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Consultar tráfego ADS-B
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data
+
+          curl --fail --silent --show-error \
+            --retry 3 --retry-delay 5 \
+            -A 'CIM-Clima/1.0 (GitHub Pages; https://detohiluy.github.io/clima-cim/)' \
+            'https://api.adsb.lol/v2/lat/-3.845481/lon/-38.460447/dist/15' \
+            -o /tmp/traffic-response.json
+
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          with open('/tmp/traffic-response.json', encoding='utf-8') as f:
+              payload = json.load(f)
+
+          aircraft = payload.get('ac') if isinstance(payload, dict) else None
+          if aircraft is None:
+              aircraft = []
+
+          cleaned = []
+          for a in aircraft:
+              if not isinstance(a, dict):
+                  continue
+              lat, lon = a.get('lat'), a.get('lon')
+              if lat is None or lon is None:
+                  continue
+              cleaned.append({
+                  'hex': a.get('hex'),
+                  'flight': (a.get('flight') or '').strip(),
+                  'registration': a.get('r'),
+                  'type': a.get('t'),
+                  'lat': lat,
+                  'lon': lon,
+                  'alt_baro': a.get('alt_baro'),
+                  'alt_geom': a.get('alt_geom'),
+                  'gs': a.get('gs'),
+                  'track': a.get('track'),
+                  'squawk': a.get('squawk'),
+                  'seen': a.get('seen'),
+                  'seen_pos': a.get('seen_pos')
+              })
+
+          out = {
+              'source': 'adsb.lol',
+              'radius_nm': 15,
+              'fetched_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+              'aircraft': cleaned
+          }
+
+          with open('data/traffic.json', 'w', encoding='utf-8') as f:
+              json.dump(out, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PY
+
+      - name: Publicar atualização
+        shell: bash
+        run: |
+          if git diff --quiet -- data/traffic.json; then
+            echo 'Tráfego sem alteração.'
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/traffic.json
+          git commit -m 'Atualiza tráfego aéreo próximo ao CIM'
+          git push
