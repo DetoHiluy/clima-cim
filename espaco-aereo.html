@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07131e">
+  <meta name="description" content="Espaço de voo, caixa operacional e referências regulatórias do Centro Integrado de Modelismo — CIM.">
+  <title>CIM · Espaço de voo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynZsoUbB+gNJlC1mtDEvU6hJQ8+0=" crossorigin="">
+  <link rel="stylesheet" href="espaco-aereo.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">CIM</span>
+        <span><small>Centro Integrado de Modelismo</small><strong>Espaço de voo</strong></span>
+      </a>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="index.html">Clima</a>
+        <a href="pista.html">Pista</a>
+        <a class="active" href="espaco-aereo.html">Espaço de voo</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Visão operacional do terreno</p>
+        <h1>A caixa de voo do CIM<br><span>sobre o terreno real.</span></h1>
+        <p>Representação da pista 13/31, linha dos pilotos, setor sem voo atrás do piloto e caixa operacional informada pelo CIM: <strong>500 m para a frente e 500 m para cada lado da pista</strong>.</p>
+      </div>
+      <div class="hero-badge"><strong>230 × 12 m</strong><span>Pista 13 / 31</span></div>
+    </section>
+
+    <section class="map-card">
+      <div class="map-head">
+        <div>
+          <p class="eyebrow">Imagem de satélite</p>
+          <h2>Terreno e limites operacionais</h2>
+        </div>
+        <div class="legend">
+          <span><i class="lg runway"></i>Pista</span>
+          <span><i class="lg box"></i>Caixa CIM 500 m</span>
+          <span><i class="lg regulatory"></i>Referência geral 300 m</span>
+          <span><i class="lg forbidden"></i>Setor atrás dos pilotos</span>
+        </div>
+      </div>
+      <div id="flight-map" class="flight-map" aria-label="Mapa de satélite da área do CIM com caixa de voo"></div>
+      <div class="map-notes">
+        <p><strong>Caixa CIM:</strong> geometria operacional baseada nas dimensões informadas pelo clube. Não está sendo apresentada como autorização do DECEA.</p>
+        <p><strong>Orientação preliminar:</strong> nesta primeira versão, a frente de voo foi colocada para o lado da Lagoa da Precabura. A linha exata dos pilotos deve ser confirmada visualmente no campo.</p>
+      </div>
+    </section>
+
+    <section class="rule-grid">
+      <article class="rule-card regulatory-card">
+        <p class="eyebrow">Regra geral DECEA · recreativo</p>
+        <strong class="rule-number">60 m</strong>
+        <h3>200 ft AGL</h3>
+        <p>Para aeromodelismo recreativo, o DECEA informa atualmente limite de <strong>200 pés / 60 m acima do solo</strong>, mantendo VLOS.</p>
+      </article>
+      <article class="rule-card">
+        <p class="eyebrow">Distância horizontal geral</p>
+        <strong class="rule-number">300 m</strong>
+        <h3>do piloto</h3>
+        <p>A regra geral publicada pelo DECEA limita a operação recreativa a <strong>300 m de distância horizontal do piloto</strong>.</p>
+      </article>
+      <article class="rule-card cim-card">
+        <p class="eyebrow">Caixa operacional informada · CIM</p>
+        <strong class="rule-number">500 m</strong>
+        <h3>frente + laterais</h3>
+        <p>Esta camada mostra a prática/limite informado pelo CIM. Para tratá-la como limite aeronáutico autorizado é necessário confirmar eventual EAC, NOTAM ou autorização específica.</p>
+      </article>
+    </section>
+
+    <section class="profile-card">
+      <div class="profile-copy">
+        <p class="eyebrow">Perfil vertical</p>
+        <h2>Limite de altura: não confundir ANAC com DECEA</h2>
+        <p>A Resolução ANAC nº 806/2026 admite aeromodelos recreativos no seu escopo até 120 m / 400 ft AGL. Porém, para acesso ao espaço aéreo, o DECEA publica limite geral mais restritivo de 60 m / 200 ft para operação recreativa. Na prática, deve prevalecer o limite aplicável mais restritivo, salvo autorização específica.</p>
+      </div>
+      <div class="height-diagram" aria-label="Diagrama de limites verticais">
+        <div class="height-line anac"><span>120 m · 400 ft</span><small>teto do enquadramento ANAC</small></div>
+        <div class="height-line decea"><span>60 m · 200 ft</span><small>limite geral recreativo DECEA</small></div>
+        <div class="ground"><span>PISTA / SOLO · AGL 0</span></div>
+      </div>
+    </section>
+
+    <section class="sources-card">
+      <p class="eyebrow">Fontes e cautelas</p>
+      <h2>Base normativa utilizada</h2>
+      <div class="sources-grid">
+        <a href="https://www.decea.mil.br/drone/" target="_blank" rel="noopener noreferrer"><strong>DECEA · Drones / Aeromodelos</strong><span>Orientação operacional atual para uso recreativo ↗</span></a>
+        <a href="https://publicacoes.decea.mil.br/publicacao/ica-100-40" target="_blank" rel="noopener noreferrer"><strong>ICA 100-40/2026</strong><span>Acesso de aeronaves não tripuladas ao espaço aéreo ↗</span></a>
+        <a href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/resolucoes/2026/resolucao-806" target="_blank" rel="noopener noreferrer"><strong>ANAC · Resolução 806/2026</strong><span>Regras para aeromodelos e UA até 250 g ↗</span></a>
+      </div>
+      <p class="legal-note">Esta página é uma ferramenta visual do clube, não uma carta aeronáutica nem uma autorização de acesso ao espaço aéreo. Restrições temporárias, espaço aéreo condicionado, NOTAM e orientações do DECEA devem ser verificados quando aplicáveis.</p>
+    </section>
+
+    <footer>
+      <p>Centro Integrado de Modelismo · Eusébio, Ceará · coordenadas de referência −3,8455 / −38,4596.</p>
+      <p>Imagem de satélite: Esri World Imagery. Geometria da pista: 230 m × 12 m, eixo operacional 130°/310°.</p>
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="espaco-aereo.js"></script>
+</body>
+</html>
