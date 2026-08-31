@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07131e">
-  <meta name="description" content="Espaço de voo, caixa operacional e referências regulatórias do Centro Integrado de Modelismo — CIM.">
+  <meta name="description" content="Espaço de voo regulamentar do Centro Integrado de Modelismo — CIM.">
   <title>CIM · Espaço de voo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynZsoUbB+gNJlC1mtDEvU6hJQ8+0=" crossorigin="">
   <link rel="stylesheet" href="espaco-aereo.css">
@@ -25,9 +25,9 @@
 
     <section class="hero">
       <div>
-        <p class="eyebrow">Visão operacional do terreno</p>
-        <h1>A caixa de voo do CIM<br><span>sobre o terreno real.</span></h1>
-        <p>Representação da pista 13/31, linha dos pilotos, setor sem voo atrás do piloto e caixa operacional informada pelo CIM: <strong>500 m para a frente e 500 m para cada lado da pista</strong>.</p>
+        <p class="eyebrow">Limites regulamentares atuais</p>
+        <h1>300 m horizontais.<br><span>60 m AGL.</span></h1>
+        <p>A view abaixo representa a regra geral vigente do DECEA para aeromodelismo recreativo: <strong>até 300 m de distância horizontal do piloto</strong>, <strong>até 60 m / 200 ft acima do solo</strong> e operação sempre em <strong>VLOS</strong>.</p>
       </div>
       <div class="hero-badge"><strong>230 × 12 m</strong><span>Pista 13 / 31</span></div>
     </section>
@@ -35,71 +35,71 @@
     <section class="map-card">
       <div class="map-head">
         <div>
-          <p class="eyebrow">Imagem de satélite</p>
-          <h2>Terreno e limites operacionais</h2>
+          <p class="eyebrow">Vista geral da área</p>
+          <h2>Área regulamentar de voo</h2>
         </div>
         <div class="legend">
           <span><i class="lg runway"></i>Pista</span>
-          <span><i class="lg box"></i>Caixa CIM 500 m</span>
-          <span><i class="lg regulatory"></i>Referência geral 300 m</span>
-          <span><i class="lg forbidden"></i>Setor atrás dos pilotos</span>
+          <span><i class="lg regulatory"></i>Raio regulamentar · 300 m</span>
+          <span><i class="lg local"></i>Setor local sem voo</span>
+          <span><i class="lg pilot"></i>Referência do piloto</span>
         </div>
       </div>
-      <div id="flight-map" class="flight-map" aria-label="Mapa de satélite da área do CIM com caixa de voo"></div>
+      <div id="flight-map" class="flight-map" aria-label="Mapa geral da área do CIM com limite regulamentar de 300 metros"></div>
       <div class="map-notes">
-        <p><strong>Caixa CIM:</strong> geometria operacional baseada nas dimensões informadas pelo clube. Não está sendo apresentada como autorização do DECEA.</p>
-        <p><strong>Orientação preliminar:</strong> nesta primeira versão, a frente de voo foi colocada para o lado da Lagoa da Precabura. A linha exata dos pilotos deve ser confirmada visualmente no campo.</p>
+        <p><strong>Regra DECEA:</strong> o limite horizontal é medido a partir do piloto, até 300 m, mantendo contato visual direto com o aeromodelo.</p>
+        <p><strong>Regra local do CIM:</strong> o setor atrás dos pilotos permanece indicado separadamente em vermelho. Ele não é apresentado como exigência do DECEA.</p>
       </div>
     </section>
 
     <section class="rule-grid">
       <article class="rule-card regulatory-card">
-        <p class="eyebrow">Regra geral DECEA · recreativo</p>
+        <p class="eyebrow">DECEA · operação recreativa</p>
+        <strong class="rule-number">300 m</strong>
+        <h3>distância horizontal máxima</h3>
+        <p>Medidos a partir da posição do piloto, mantendo a operação em VLOS.</p>
+      </article>
+      <article class="rule-card regulatory-card">
+        <p class="eyebrow">DECEA · altura</p>
         <strong class="rule-number">60 m</strong>
         <h3>200 ft AGL</h3>
-        <p>Para aeromodelismo recreativo, o DECEA informa atualmente limite de <strong>200 pés / 60 m acima do solo</strong>, mantendo VLOS.</p>
+        <p>Altura máxima geral para operação recreativa, acima do nível do solo.</p>
       </article>
       <article class="rule-card">
-        <p class="eyebrow">Distância horizontal geral</p>
-        <strong class="rule-number">300 m</strong>
-        <h3>do piloto</h3>
-        <p>A regra geral publicada pelo DECEA limita a operação recreativa a <strong>300 m de distância horizontal do piloto</strong>.</p>
-      </article>
-      <article class="rule-card cim-card">
-        <p class="eyebrow">Caixa operacional informada · CIM</p>
-        <strong class="rule-number">500 m</strong>
-        <h3>frente + laterais</h3>
-        <p>Esta camada mostra a prática/limite informado pelo CIM. Para tratá-la como limite aeronáutico autorizado é necessário confirmar eventual EAC, NOTAM ou autorização específica.</p>
+        <p class="eyebrow">Condição obrigatória</p>
+        <strong class="rule-number">VLOS</strong>
+        <h3>linha de visada visual</h3>
+        <p>O piloto deve manter contato visual direto com o aeromodelo durante a operação.</p>
       </article>
     </section>
 
     <section class="profile-card">
       <div class="profile-copy">
         <p class="eyebrow">Perfil vertical</p>
-        <h2>Limite de altura: não confundir ANAC com DECEA</h2>
-        <p>A Resolução ANAC nº 806/2026 admite aeromodelos recreativos no seu escopo até 120 m / 400 ft AGL. Porém, para acesso ao espaço aéreo, o DECEA publica limite geral mais restritivo de 60 m / 200 ft para operação recreativa. Na prática, deve prevalecer o limite aplicável mais restritivo, salvo autorização específica.</p>
+        <h2>Envelope regulamentar geral</h2>
+        <p>A ANAC limita aeromodelos em seu escopo a até 120 m / 400 ft AGL, porém o DECEA aplica, para aeromodelismo recreativo, limite operacional geral mais restritivo de 60 m / 200 ft AGL. Esta página adota o limite do DECEA como referência prática para o CIM.</p>
       </div>
-      <div class="height-diagram" aria-label="Diagrama de limites verticais">
-        <div class="height-line anac"><span>120 m · 400 ft</span><small>teto do enquadramento ANAC</small></div>
+      <div class="height-diagram" aria-label="Diagrama do limite vertical de 60 metros">
+        <div class="height-line anac"><span>120 m · 400 ft</span><small>limite do enquadramento ANAC</small></div>
         <div class="height-line decea"><span>60 m · 200 ft</span><small>limite geral recreativo DECEA</small></div>
         <div class="ground"><span>PISTA / SOLO · AGL 0</span></div>
       </div>
     </section>
 
     <section class="sources-card">
-      <p class="eyebrow">Fontes e cautelas</p>
-      <h2>Base normativa utilizada</h2>
+      <p class="eyebrow">Base normativa</p>
+      <h2>Normas utilizadas nesta representação</h2>
       <div class="sources-grid">
-        <a href="https://www.decea.mil.br/drone/" target="_blank" rel="noopener noreferrer"><strong>DECEA · Drones / Aeromodelos</strong><span>Orientação operacional atual para uso recreativo ↗</span></a>
+        <a href="https://www.decea.mil.br/drone/" target="_blank" rel="noopener noreferrer"><strong>DECEA · Drones / Aeromodelos</strong><span>Limites atuais de 300 m, 60 m AGL e VLOS ↗</span></a>
         <a href="https://publicacoes.decea.mil.br/publicacao/ica-100-40" target="_blank" rel="noopener noreferrer"><strong>ICA 100-40/2026</strong><span>Acesso de aeronaves não tripuladas ao espaço aéreo ↗</span></a>
-        <a href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/resolucoes/2026/resolucao-806" target="_blank" rel="noopener noreferrer"><strong>ANAC · Resolução 806/2026</strong><span>Regras para aeromodelos e UA até 250 g ↗</span></a>
+        <a href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/resolucoes/2026/resolucao-806" target="_blank" rel="noopener noreferrer"><strong>ANAC · Resolução 806/2026</strong><span>Regras atuais para aeromodelos ↗</span></a>
       </div>
-      <p class="legal-note">Esta página é uma ferramenta visual do clube, não uma carta aeronáutica nem uma autorização de acesso ao espaço aéreo. Restrições temporárias, espaço aéreo condicionado, NOTAM e orientações do DECEA devem ser verificados quando aplicáveis.</p>
+      <p class="legal-note">Esta é uma representação visual auxiliar. Restrições temporárias, autorizações específicas, EAC, NOTAM e demais condições do espaço aéreo devem ser verificadas quando aplicáveis.</p>
     </section>
 
     <footer>
       <p>Centro Integrado de Modelismo · Eusébio, Ceará · coordenadas de referência −3,8455 / −38,4596.</p>
-      <p>Imagem de satélite: Esri World Imagery. Geometria da pista: 230 m × 12 m, eixo operacional 130°/310°.</p>
+      <p>Base cartográfica padrão: OpenStreetMap / CARTO. Camada de satélite disponível apenas como opção secundária.</p>
     </footer>
   </main>
 
