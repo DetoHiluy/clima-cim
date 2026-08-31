@@ -1,6 +1,15 @@
 const TRAFFIC={lat:-3.845481,lon:-38.460447,refreshMs:60_000};
 let trafficLayer=null;
 
+if(typeof L!=='undefined'&&!window.cimMap){
+  const originalMap=L.map;
+  L.map=function(...args){
+    const map=originalMap.apply(this,args);
+    window.cimMap=map;
+    return map;
+  };
+}
+
 function trafficDistanceKm(lat1,lon1,lat2,lon2){
   const R=6371;
   const dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
@@ -60,9 +69,9 @@ async function loadTraffic(){
     const closest=document.querySelector('#traffic-closest');
     const updated=document.querySelector('#traffic-updated');
     if(count)count.textContent='Tráfego temporariamente indisponível';
-    if(closest)closest.textContent='O mapa meteorológico continua operacional.';
+    if(closest)closest.textContent='O mapa continua operacional.';
     if(updated)updated.textContent='sem feed';
   }
 }
-setTimeout(loadTraffic,350);
+setTimeout(loadTraffic,500);
 setInterval(loadTraffic,TRAFFIC.refreshMs);
