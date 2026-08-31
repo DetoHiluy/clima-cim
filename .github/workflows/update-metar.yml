@@ -7,15 +7,20 @@ on:
     paths:
       - '.github/workflows/update-metar.yml'
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: metar-sbfz
+  cancel-in-progress: true
+
 jobs:
   update-metar:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,10 +47,20 @@ jobs:
           if not isinstance(payload, list) or not payload:
               raise SystemExit('AWC retornou resposta sem METAR para SBFZ')
 
+          def obs_key(item):
+              value = item.get('obsTime') or item.get('reportTime') or 0
+              if isinstance(value, (int, float)):
+                  return float(value)
+              try:
+                  return datetime.fromisoformat(str(value).replace('Z', '+00:00')).timestamp()
+              except Exception:
+                  return 0
+
+          latest = max(payload, key=obs_key)
           out = {
               'station': 'SBFZ',
               'fetched_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
-              'metar': payload[0]
+              'metar': latest
           }
 
           with open('data/metar.json', 'w', encoding='utf-8') as f:
