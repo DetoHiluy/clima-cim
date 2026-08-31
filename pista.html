@@ -8,7 +8,7 @@
   <title>CIM · Pista e espaço de voo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="pista.css?v=20260831-1102">
-  <link rel="stylesheet" href="map-fixes.css?v=20260831-1102">
+  <link rel="stylesheet" href="map-fixes.css?v=20260831-1148">
 </head>
 <body>
   <main class="shell">
@@ -43,16 +43,22 @@
         <article><strong>60 m</strong><span>200 ft AGL · altura máxima geral</span></article>
         <article><strong>VLOS</strong><span>contato visual direto obrigatório</span></article>
       </div>
+      <div class="traffic-strip" aria-live="polite">
+        <div class="traffic-main"><span class="traffic-symbol">✈</span><div><strong id="traffic-count">Consultando tráfego aéreo…</strong><small id="traffic-closest">Feed ADS-B em até 15 NM do CIM</small></div></div>
+        <span id="traffic-updated">aguardando feed</span>
+      </div>
       <div class="map-legend" aria-label="Legenda do mapa">
         <span><i class="lg-blue"></i>Azul: setor de voo em direção à lagoa</span>
         <span><i class="lg-red"></i>Vermelho: atrás dos pilotos — não voar</span>
         <span><i class="lg-yellow"></i>Amarelo: linha/posição dos pilotos</span>
         <span><strong>13 / 31</strong>: referências indicativas das cabeceiras</span>
+        <span><i class="lg-traffic"></i>Aeronaves ADS-B detectadas na região</span>
       </div>
       <div id="flight-map" class="flight-map"></div>
       <div class="airspace-note">
         <p><strong>Círculo tracejado azul:</strong> limite horizontal geral de 300 m medido a partir do piloto. A metade azul representa o setor de voo voltado para a lagoa.</p>
         <p><strong>13 e 31:</strong> são apenas marcações indicativas das cabeceiras. O corpo da pista não é desenhado sobre o mapa enquanto não tivermos as coordenadas exatas das duas extremidades.</p>
+        <p><strong>Tráfego aéreo:</strong> posições recebidas por ADS-B na região, com raio de 15 NM. É uma referência situacional e não garante a exibição de todas as aeronaves.</p>
       </div>
     </section>
 
@@ -90,7 +96,7 @@
       <article class="panel"><span>Rajadas</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
       <article class="panel"><span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small></article>
       <article class="panel"><span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small></article>
-      <article class="panel"><span>Ângulo relativo</span><strong id="relative-angle">--</strong><small id="angle-label">--</small></article>
+      <article class="panel"><span>Ângulo relativo</span><strong id="relative-angle">--°</strong><small id="angle-label">--</small></article>
     </section>
 
     <section class="forecast-panel">
@@ -101,9 +107,11 @@
     <footer>
       <p>Pista atual do CIM: <strong>230 m × 12 m</strong>, cabeceiras 13/31. Centro: <strong>-3.845481, -38.460447</strong>.</p>
       <p>Espaço de voo: referência geral DECEA — 300 m horizontais, 60 m / 200 ft AGL e VLOS. A restrição atrás dos pilotos é regra operacional local do CIM.</p>
+      <p>Tráfego aéreo: adsb.lol · dados abertos ODbL. A cobertura depende de recepção ADS-B/MLAT e não substitui informação aeronáutica oficial.</p>
     </footer>
   </main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="pista.js?v=20260831-1118"></script>
+  <script src="traffic.js?v=20260831-1148"></script>
+  <script src="pista.js?v=20260831-1148"></script>
 </body>
 </html>
