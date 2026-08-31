@@ -1,77 +1,13 @@
-const TRAFFIC={lat:-3.845481,lon:-38.460447,refreshMs:60_000};
-let trafficLayer=null;
+const TRAFFIC_CIM={lat:-3.845481,lon:-38.460447,radiusNm:15};
+let trafficMap=null,trafficLayer=null;
 
-if(typeof L!=='undefined'&&!window.cimMap){
-  const originalMap=L.map;
-  L.map=function(...args){
-    const map=originalMap.apply(this,args);
-    window.cimMap=map;
-    return map;
-  };
-}
-
-function trafficDistanceKm(lat1,lon1,lat2,lon2){
-  const R=6371;
-  const dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return 2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function trafficAltitude(a){
-  const alt=a.alt_baro??a.alt_geom;
-  if(alt==null)return'-- ft';
-  if(typeof alt==='string')return alt==='ground'?'solo':alt;
-  return `${Math.round(alt).toLocaleString('pt-BR')} ft`;
-}
-function trafficSpeed(gs){return gs==null?'-- kt':`${Math.round(gs)} kt`}
+function trafficDistanceKm(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function trafficFmtTime(v){if(!v)return'--:--';return new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Fortaleza'}).format(new Date(v))}
+function trafficAltitude(a){const v=a.alt_baro??a.alt_geom;if(v===null||v===undefined)return'-- ft';if(typeof v==='string')return v.toLowerCase()==='ground'?'SOLO':v;return `${Math.round(v).toLocaleString('pt-BR')} ft`}
 function trafficName(a){return a.flight||a.registration||a.hex?.toUpperCase()||'Aeronave'}
-function trafficAge(ts){
-  if(!ts)return'--';
-  const s=Math.max(0,Math.round((Date.now()-new Date(ts).getTime())/1000));
-  if(s<60)return`${s}s`;
-  return`${Math.floor(s/60)} min`;
-}
-function planeIcon(track=0){
-  const rot=Number.isFinite(Number(track))?Number(track):0;
-  return L.divIcon({
-    className:'traffic-plane-wrap',
-    html:`<div class="traffic-plane" style="transform:rotate(${rot}deg)">✈</div>`,
-    iconSize:[28,28],iconAnchor:[14,14]
-  });
-}
-function renderTraffic(payload){
-  const map=window.cimMap;
-  if(!map||typeof L==='undefined')return;
-  if(trafficLayer)trafficLayer.clearLayers();
-  else trafficLayer=L.layerGroup().addTo(map);
-
-  const aircraft=(payload.aircraft||[]).map(a=>({...a,distanceKm:trafficDistanceKm(TRAFFIC.lat,TRAFFIC.lon,a.lat,a.lon)})).sort((a,b)=>a.distanceKm-b.distanceKm);
-  for(const a of aircraft){
-    const marker=L.marker([a.lat,a.lon],{icon:planeIcon(a.track),zIndexOffset:600}).addTo(trafficLayer);
-    const id=trafficName(a);
-    marker.bindTooltip(`${id} · ${a.distanceKm.toFixed(1)} km`,{direction:'top',offset:[0,-12]});
-    marker.bindPopup(`<div class="traffic-popup"><strong>${id}</strong><span>${trafficAltitude(a)} · ${trafficSpeed(a.gs)}</span><span>Rumo ${a.track==null?'--':Math.round(a.track)+'°'} · ${a.distanceKm.toFixed(1)} km do CIM</span>${a.type?`<span>Tipo ${a.type}</span>`:''}</div>`);
-  }
-
-  const count=document.querySelector('#traffic-count');
-  const closest=document.querySelector('#traffic-closest');
-  const updated=document.querySelector('#traffic-updated');
-  if(count)count.textContent=`${aircraft.length} ${aircraft.length===1?'aeronave':'aeronaves'} em até 15 NM`;
-  if(closest)closest.textContent=aircraft.length?`Mais próxima: ${trafficName(aircraft[0])} · ${aircraft[0].distanceKm.toFixed(1)} km · ${trafficAltitude(aircraft[0])}`:'Nenhuma aeronave detectada no raio agora';
-  if(updated)updated.textContent=payload.fetched_at?`feed há ${trafficAge(payload.fetched_at)}`:'aguardando primeiro feed';
-}
-async function loadTraffic(){
-  try{
-    const r=await fetch(`data/traffic.json?t=${Date.now()}`,{cache:'no-store'});
-    if(!r.ok)throw Error('traffic');
-    renderTraffic(await r.json());
-  }catch{
-    const count=document.querySelector('#traffic-count');
-    const closest=document.querySelector('#traffic-closest');
-    const updated=document.querySelector('#traffic-updated');
-    if(count)count.textContent='Tráfego temporariamente indisponível';
-    if(closest)closest.textContent='O mapa continua operacional.';
-    if(updated)updated.textContent='sem feed';
-  }
-}
-setTimeout(loadTraffic,500);
-setInterval(loadTraffic,TRAFFIC.refreshMs);
+function trafficIcon(a){const track=Number.isFinite(Number(a.track))?Number(a.track):0;return L.divIcon({className:'aircraft-icon-wrap',html:`<div class="aircraft-marker"><span class="aircraft-plane" style="transform:rotate(${track}deg)">▲</span><b>${trafficName(a)}</b><small>${trafficAltitude(a)}</small></div>`,iconSize:[116,48],iconAnchor:[20,20]})}
+function ensureTrafficSection(){if(document.querySelector('#traffic-map'))return;const profile=document.querySelector('.profile-panel');if(!profile)return;profile.insertAdjacentHTML('beforebegin',`<section class="traffic-panel"><div class="section-heading"><div><p class="eyebrow">Tráfego aéreo</p><h2>Aeronaves na região do CIM</h2></div><span id="traffic-updated">aguardando dados…</span></div><div class="traffic-summary"><article><strong id="traffic-count">--</strong><span>aeronaves detectadas em até 15 NM</span></article><article><strong>≈ 28 km</strong><span>raio de observação a partir do CIM</span></article><article><strong>ADS-B / MLAT</strong><span>tráfego detectado pela rede adsb.lol</span></article></div><div id="traffic-map" class="traffic-map"></div><div id="traffic-list" class="traffic-list"></div><p class="traffic-note">Dados de tráfego: adsb.lol (ODbL). A visualização mostra apenas aeronaves detectadas pela rede ADS-B/MLAT e não deve ser interpretada como cobertura integral do espaço aéreo ou serviço de separação de tráfego.</p></section>`)}
+function initTrafficMap(){const el=document.querySelector('#traffic-map');if(!el||typeof L==='undefined')return;trafficMap=L.map(el,{zoomControl:true,attributionControl:true}).setView([TRAFFIC_CIM.lat,TRAFFIC_CIM.lon],10);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(trafficMap);L.circleMarker([TRAFFIC_CIM.lat,TRAFFIC_CIM.lon],{radius:7,color:'#f4b942',weight:3,fillColor:'#06131f',fillOpacity:1}).addTo(trafficMap).bindTooltip('CIM');const range=L.circle([TRAFFIC_CIM.lat,TRAFFIC_CIM.lon],{radius:TRAFFIC_CIM.radiusNm*1852,color:'#64748b',weight:1,dashArray:'6 8',fill:false,interactive:false}).addTo(trafficMap);trafficMap.fitBounds(range.getBounds().pad(.04));trafficLayer=L.layerGroup().addTo(trafficMap);setTimeout(()=>trafficMap.invalidateSize(),150)}
+function renderTraffic(payload){const list=Array.isArray(payload.aircraft)?payload.aircraft:[];const enriched=list.map(a=>({...a,distanceKm:trafficDistanceKm(TRAFFIC_CIM.lat,TRAFFIC_CIM.lon,Number(a.lat),Number(a.lon))})).filter(a=>Number.isFinite(a.distanceKm)).sort((a,b)=>a.distanceKm-b.distanceKm);document.querySelector('#traffic-count').textContent=enriched.length;document.querySelector('#traffic-updated').textContent=payload.fetched_at?`atualizado ${trafficFmtTime(payload.fetched_at)}`:'sem horário';trafficLayer.clearLayers();for(const a of enriched){const marker=L.marker([a.lat,a.lon],{icon:trafficIcon(a)}).addTo(trafficLayer);const id=trafficName(a),reg=a.registration?` · ${a.registration}`:'',type=a.type?` · ${a.type}`:'';const speed=a.gs!=null?`${Math.round(Number(a.gs))} kt`:'-- kt';const track=a.track!=null?`${Math.round(Number(a.track))}°`:'--°';marker.bindPopup(`<strong>${id}${reg}${type}</strong><br>Altitude: ${trafficAltitude(a)}<br>Velocidade: ${speed}<br>Rumo: ${track}<br>Distância do CIM: ${a.distanceKm.toFixed(1).replace('.',',')} km`)}const top=enriched.slice(0,6);document.querySelector('#traffic-list').innerHTML=top.length?top.map(a=>`<article><strong>${trafficName(a)}</strong><span>${a.registration||a.type||'identificação ADS-B'}</span><small>${trafficAltitude(a)} · ${a.gs!=null?Math.round(Number(a.gs))+' kt':'vel. --'} · ${a.distanceKm.toFixed(1).replace('.',',')} km</small></article>`).join(''):'<p class="traffic-empty">Nenhuma aeronave com posição detectada no raio de 15 NM na última coleta.</p>'}
+async function loadTraffic(){try{const r=await fetch(`data/traffic.json?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('traffic');renderTraffic(await r.json())}catch(e){document.querySelector('#traffic-updated').textContent='dados indisponíveis';document.querySelector('#traffic-list').innerHTML='<p class="traffic-empty">Não foi possível carregar o tráfego aéreo agora.</p>'}}
+ensureTrafficSection();initTrafficMap();loadTraffic();setInterval(loadTraffic,60*1000);
