@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#06131f">
   <meta name="description" content="Pista 13/31 e espaço de voo do Centro Integrado de Modelismo — CIM.">
   <title>CIM · Pista e espaço de voo</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pista.css?v=20260831-1102">
-  <link rel="stylesheet" href="map-fixes.css?v=20260831-1558">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynZsoUbB+gNJlC1mtDEvU6hJQ8+0=" crossorigin="">
+  <link rel="stylesheet" href="pista.css?v=20260831-final">
+  <link rel="stylesheet" href="navigation.css?v=20260831-final">
 </head>
 <body>
   <main class="shell">
@@ -17,7 +17,7 @@
         <span class="brand-mark">CIM</span>
         <span><small>Centro Integrado de Modelismo</small><strong>Pista 13 / 31</strong></span>
       </a>
-      <nav class="nav" aria-label="Navegação principal">
+      <nav class="cim-nav" aria-label="Navegação principal">
         <a href="index.html">Clima</a>
         <a class="active" href="pista.html">Pista e espaço de voo</a>
       </nav>
@@ -36,7 +36,7 @@
     <section class="airspace-panel airspace-feature">
       <div class="section-heading">
         <div><p class="eyebrow">Espaço de voo</p><h2>Área de operação do CIM</h2></div>
-        <span>referência geral + regra local do CIM</span>
+        <span>referência geométrica + regra local · não equivale a autorização</span>
       </div>
       <div class="airspace-summary">
         <article><strong>300 m</strong><span>raio horizontal geral medido a partir do piloto</span></article>
@@ -54,10 +54,25 @@
       <div class="airspace-note">
         <p><strong>Círculo tracejado azul:</strong> referência horizontal geral com <strong>raio de 300 m a partir do piloto</strong>; portanto, o círculo completo tem <strong>600 m de diâmetro</strong>. A linha marcada “RAIO 300 m” permite conferir visualmente a escala no mapa.</p>
         <p><strong>Posição do piloto:</strong> ainda é aproximada, calculada geometricamente a partir do centro da pista. Assim que tivermos a coordenada medida da linha real dos pilotos, ela deve substituir essa referência.</p>
-        <p><strong>Importante:</strong> o círculo não é apresentado como EAC ou autorização específica do CIM. Ele representa a referência horizontal geral; a metade vermelha é a restrição operacional local de não voar atrás dos pilotos.</p>
+        <p><strong>Importante:</strong> os 300 m / 60 m são limites gerais da operação recreativa, não uma autorização automática para uso do espaço aéreo. O DECEA informa que, em regra, o acesso deve ser solicitado pelo SARPAS; a dispensa ocorre para operação recreativa dentro de EAC destinado especificamente a essa finalidade. Este painel não afirma que o CIM seja um EAC. A metade vermelha é apenas a regra operacional local de não voar atrás dos pilotos.</p>
         <p><strong>13 e 31:</strong> são marcações calculadas a partir do centro informado, dos 230 m de comprimento e do rumo nominal adotado. Não são coordenadas levantadas em campo.</p>
         <p><strong>Conferência pelas fotos aéreas do CIM:</strong> os registros confirmam o lado da área de apoio/pilotos e o setor livre voltado para a Lagoa da Precabura, coerentes com o mapa. As fotos são referência visual, não ortofotos georreferenciadas; por isso não são usadas para inventar limites ou coordenadas.</p>
       </div>
+    </section>
+
+    <section class="traffic-panel" aria-labelledby="traffic-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">Tráfego aéreo</p><h2 id="traffic-title">Tráfego ADS-B/MLAT na região</h2></div>
+        <span>visualização externa</span>
+      </div>
+      <div class="traffic-external">
+        <div>
+          <strong>Monitor ao vivo centrado no CIM</strong>
+          <p>O adsb.lol bloqueia incorporação em sites de terceiros. Para não deixar um painel quebrado ou uma posição antiga parecer atual, o monitor é aberto diretamente na fonte.</p>
+        </div>
+        <a class="traffic-link" href="https://adsb.lol/?lat=-3.845481&lon=-38.460447&zoom=10" target="_blank" rel="noopener noreferrer">Abrir tráfego ao vivo ↗</a>
+      </div>
+      <p class="traffic-note">Dados ADS-B/MLAT abertos ODbL. A cobertura não representa todo o tráfego aéreo e não substitui informação aeronáutica oficial, SARPAS, vigilância anticolisão nem a obrigação de interromper o voo diante de aeronave tripulada.</p>
     </section>
 
     <section class="profile-panel">
@@ -91,7 +106,7 @@
     <section class="brief-grid">
       <article class="panel primary"><p class="eyebrow">Pista recomendada</p><strong id="preferred-runway" class="big-value">--</strong><p id="runway-reason">Calculando a melhor cabeceira para o vento atual.</p></article>
       <article class="panel"><span>Vento atual · modelo</span><strong id="wind">--</strong><small id="wind-dir">--</small></article>
-      <article class="panel"><span>Rajadas · modelo</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
+      <article class="panel"><span>Rajada máx. · intervalo</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
       <article class="panel"><span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small></article>
       <article class="panel"><span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small></article>
       <article class="panel"><span>Ângulo relativo</span><strong id="relative-angle">--°</strong><small id="angle-label">--</small></article>
@@ -105,11 +120,10 @@
     <footer>
       <p>Pista atual do CIM: <strong>230 m × 12 m</strong>, cabeceiras 13/31. Centro: <strong>-3.845481, -38.460447</strong>.</p>
       <p>Vento: estimativa de modelo Open-Meteo para as coordenadas do CIM; o horário de validade é exibido e dados antigos são sinalizados.</p>
-      <p>Tráfego aéreo: adsb.lol como fonte direta primária, Airplanes.live como redundância direta e snapshot adsb.lol no GitHub como último recurso. A idade total de cada posição é verificada antes de exibi-la. Cobertura ADS-B/MLAT não equivale a todo o tráfego e não substitui informação aeronáutica oficial.</p>
+      <p>Tráfego aéreo: visualização externa ao vivo do adsb.lol, com dados ADS-B/MLAT abertos ODbL. A cobertura não equivale a todo o tráfego e não substitui informação aeronáutica oficial.</p>
     </footer>
   </main>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="pista.js?v=20260831-1545"></script>
-  <script src="traffic.js?v=20260831-1645"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="pista.js?v=20260831-final"></script>
 </body>
 </html>
