@@ -10,15 +10,15 @@
   <meta property="og:title" content="CIM · Clima e condições de voo">
   <meta property="og:description" content="Clima, vento e condições operacionais para a pista 13/31 do Centro Integrado de Modelismo.">
   <title>CIM · Clima e condições de voo</title>
-  <link rel="preload" as="image" href="assets/cim-pista-hero.webp">
+  <link rel="preload" as="image" href="assets/cim-pista-hero.webp?v=20260831-final">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="status-enhancements.css?v=20260831-1454">
-  <link rel="stylesheet" href="layout-v3.css?v=20260831-1807">
+  <link rel="stylesheet" href="layout-v3.css?v=20260831-final">
+  <link rel="stylesheet" href="navigation.css?v=20260831-final">
 </head>
 <body>
   <main class="page-shell">
     <header class="site-header" aria-label="Centro Integrado de Modelismo">
-      <img class="site-header-photo" src="assets/cim-pista-hero.webp" alt="Vista aérea da pista do Centro Integrado de Modelismo, no Eusébio">
+      <img class="site-header-photo" src="assets/cim-pista-hero.webp?v=20260831-final" alt="Vista aérea da pista do Centro Integrado de Modelismo, no Eusébio">
       <div class="site-header-inner">
         <div class="topbar">
           <div class="brand">
@@ -28,7 +28,7 @@
               <span>Eusébio · Ceará</span>
             </div>
           </div>
-          <nav class="main-nav" aria-label="Navegação principal">
+          <nav class="cim-nav" aria-label="Navegação principal">
             <a class="active" href="index.html">Clima</a>
             <a href="pista.html">Pista e espaço de voo</a>
           </nav>
@@ -84,7 +84,7 @@
         </div>
         <dl class="metrics compact">
           <div><dt>Direção</dt><dd id="wind-direction">--</dd></div>
-          <div><dt>Rajadas</dt><dd id="wind-gust">-- km/h</dd></div>
+          <div><dt>Rajada máx. · intervalo</dt><dd id="wind-gust">-- km/h</dd></div>
           <div><dt>Variação rajada</dt><dd id="gust-spread">-- km/h</dd></div>
           <div><dt>Intensidade</dt><dd id="wind-class">--</dd></div>
         </dl>
@@ -119,8 +119,8 @@
       <article class="card metric-card"><span>Umidade</span><strong id="humidity">--%</strong><small id="dew-point">Orvalho --°C</small></article>
       <article class="card metric-card"><span>Pressão</span><strong id="pressure">-- hPa</strong><small>pressão ao nível do local</small></article>
       <article class="card metric-card"><span>Visibilidade</span><strong id="visibility">-- km</strong><small id="visibility-label">--</small></article>
-      <article class="card metric-card"><span>Precipitação · modelo</span><strong id="rain-probability">-- mm</strong><small id="rain-total">Próxima hora: --%</small></article>
-      <article class="card metric-card"><span>UV máximo hoje</span><strong id="uv-index">--</strong><small id="uv-label">--</small></article>
+      <article class="card metric-card"><span id="precipitation-label">Precipitação · modelo</span><strong id="rain-probability">-- mm</strong><small id="rain-total">Próxima hora: --%</small></article>
+      <article class="card metric-card"><span id="uv-card-label">UV atual · modelo</span><strong id="uv-index">--</strong><small id="uv-label">--</small></article>
       <article class="card metric-card"><span>Pôr do sol</span><strong id="sunset">--:--</strong><small id="sunrise">Nascer --:--</small></article>
     </section>
 
@@ -140,7 +140,7 @@
         </div>
         <p id="metar-raw" class="metar-raw">Aguardando observação…</p>
         <dl id="metar-details" class="metar-details"></dl>
-        <p class="source-line">O painel consulta fontes METAR diretas e valida a idade da observação antes de exibi-la. O snapshot do GitHub é apenas último recurso e é rejeitado quando antigo. SBFZ é referência regional, não medição no CIM.</p>
+        <p class="source-line">METAR SBFZ é consultado diretamente em fontes públicas com redundância e validação de idade. SBFZ é observação regional de Fortaleza, não medição no CIM.</p>
       </section>
 
       <section class="card radar-card">
@@ -158,12 +158,11 @@
     </section>
 
     <footer>
-      <p>Open-Meteo: estimativa por modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação instalada no campo.</p>
-      <p>METAR: estação SBFZ com redundância de fonte e validação de idade. Se nenhuma fonte entregar observação suficientemente recente, o painel mostra indisponibilidade. Os indicadores operacionais são auxiliares e não substituem a biruta, a observação no local e a decisão do piloto.</p>
+      <p>Open-Meteo: estimativa de modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação no campo. Precipitação e rajada são agregadas no intervalo indicado pelo próprio modelo.</p>
+      <p>METAR: observação SBFZ com redundância de fonte e limite de idade. Os níveis FAVORÁVEL / ATENÇÃO / DESAFIADOR / DESFAVORÁVEL são heurísticas operacionais do painel CIM, não limites legais ou de fabricante. Nada nesta página substitui a biruta, a observação local ou a decisão do piloto.</p>
     </footer>
   </main>
 
-  <script src="reliability.js?v=20260831-1720"></script>
-  <script src="app.js?v=20260831-1720"></script>
+  <script src="app.js?v=20260831-final"></script>
 </body>
 </html>
