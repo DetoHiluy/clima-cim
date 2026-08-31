@@ -21,148 +21,41 @@
       <img class="site-header-photo" src="assets/cim-pista-hero.webp?v=20260831-final" alt="Vista aérea da pista do Centro Integrado de Modelismo, no Eusébio">
       <div class="site-header-inner">
         <div class="topbar">
-          <div class="brand">
-            <div class="brand-mark" aria-hidden="true">CIM</div>
-            <div class="brand-copy">
-              <strong>Centro Integrado de Modelismo</strong>
-              <span>Eusébio · Ceará</span>
-            </div>
-          </div>
-          <nav class="cim-nav" aria-label="Navegação principal">
-            <a class="active" href="index.html">Clima</a>
-            <a href="pista.html">Pista e espaço de voo</a>
-          </nav>
-          <div class="clock" aria-live="polite">
-            <strong id="clock-time">--:--</strong>
-            <span id="clock-date">carregando…</span>
-            <small id="updated-at">aguardando atualização</small>
-          </div>
+          <div class="brand"><div class="brand-mark" aria-hidden="true">CIM</div><div class="brand-copy"><strong>Centro Integrado de Modelismo</strong><span>Eusébio · Ceará</span></div></div>
+          <nav class="cim-nav" aria-label="Navegação principal"><a class="active" href="index.html">Clima</a><a href="pista.html">Pista e espaço de voo</a></nav>
+          <div class="clock" aria-live="polite"><strong id="clock-time">--:--</strong><span id="clock-date">carregando…</span><small id="updated-at">aguardando atualização</small></div>
         </div>
-
-        <div class="site-header-copy">
-          <p class="eyebrow">Condições de voo</p>
-          <h1>Clima no CIM</h1>
-          <p>Pista 13/31 · 230 × 12 m · informações meteorológicas e operacionais para o campo.</p>
-        </div>
-
-        <div class="site-header-bottom">
-          <a class="header-runway-link" href="pista.html">Pista 13/31 e espaço de voo →</a>
-          <span class="photo-caption">Vista aérea real do CIM</span>
-        </div>
+        <div class="site-header-copy"><p class="eyebrow">Condições de voo</p><h1>Clima no CIM</h1><p>Pista 13/31 · 230 × 12 m · informações meteorológicas e operacionais para o campo.</p></div>
+        <div class="site-header-bottom"><a class="header-runway-link" href="pista.html">Pista 13/31 e espaço de voo →</a><span class="photo-caption">Vista aérea real do CIM</span></div>
       </div>
     </header>
 
-    <section id="status-card" class="status-card loading" aria-live="polite">
-      <div class="status-copy">
-        <p class="eyebrow">Briefing operacional</p>
-        <h2 id="flight-status">Consultando o céu…</h2>
-        <p id="flight-message">Buscando as condições meteorológicas atuais para o campo.</p>
-        <div id="status-factors" class="status-factors"></div>
-      </div>
-      <div class="status-indicator"><span class="status-dot" aria-hidden="true"></span><strong id="status-word">AGUARDE</strong></div>
-    </section>
+    <section id="status-card" class="status-card loading" aria-live="polite"><div class="status-copy"><p class="eyebrow">Briefing operacional</p><h2 id="flight-status">Consultando o céu…</h2><p id="flight-message">Buscando as condições meteorológicas atuais para o campo.</p><div id="status-factors" class="status-factors"></div></div><div class="status-indicator"><span class="status-dot" aria-hidden="true"></span><strong id="status-word">AGUARDE</strong></div></section>
 
     <section class="grid primary-grid">
-      <article class="card hero-weather">
-        <div>
-          <p class="eyebrow">Condição atual · modelo</p>
-          <div class="temperature-row"><strong id="temperature">--°</strong><span id="weather-description">--</span></div>
-          <p id="feels-like">Sensação: --</p>
-          <div class="hero-mini"><span id="humidity-hero">Umidade --%</span><span id="pressure-hero">Pressão -- hPa</span></div>
-        </div>
-        <div class="weather-icon" id="weather-icon" aria-hidden="true">⛅</div>
-      </article>
-
-      <article class="card wind-card">
-        <div class="card-header">
-          <div>
-            <p class="eyebrow">Vento no campo · modelo</p>
-            <h2><span id="wind-speed">--</span> <small>km/h</small></h2>
-            <p id="wind-direction-text">Direção --</p>
-          </div>
-          <div class="wind-compass"><span class="north">N</span><div id="wind-arrow" class="wind-arrow" aria-hidden="true">↑</div></div>
-        </div>
-        <dl class="metrics compact">
-          <div><dt>Direção</dt><dd id="wind-direction">--</dd></div>
-          <div><dt>Rajada máx. · intervalo</dt><dd id="wind-gust">-- km/h</dd></div>
-          <div><dt>Variação rajada</dt><dd id="gust-spread">-- km/h</dd></div>
-          <div><dt>Intensidade</dt><dd id="wind-class">--</dd></div>
-        </dl>
-      </article>
+      <article class="card hero-weather"><div><p class="eyebrow">Condição atual · modelo</p><div class="temperature-row"><strong id="temperature">--°</strong><span id="weather-description">--</span></div><p id="feels-like">Sensação: --</p><div class="hero-mini"><span id="humidity-hero">Umidade --%</span><span id="pressure-hero">Pressão -- hPa</span></div></div><div class="weather-icon" id="weather-icon" aria-hidden="true">⛅</div></article>
+      <article class="card wind-card"><div class="card-header"><div><p class="eyebrow">Vento no campo · modelo</p><h2><span id="wind-speed">--</span> <small>km/h</small></h2><p id="wind-direction-text">Direção --</p></div><div class="wind-compass"><span class="north">N</span><div id="wind-arrow" class="wind-arrow" aria-hidden="true">↑</div></div></div><dl class="metrics compact"><div><dt>Direção</dt><dd id="wind-direction">--</dd></div><div><dt>Rajada máx. · intervalo</dt><dd id="wind-gust">-- km/h</dd></div><div><dt>Variação rajada</dt><dd id="gust-spread">-- km/h</dd></div><div><dt>Intensidade</dt><dd id="wind-class">--</dd></div></dl></article>
     </section>
 
-    <section class="card runway-card">
-      <div class="runway-heading">
-        <div>
-          <p class="eyebrow">Operação da pista</p>
-          <h2>Pista 13 / 31 · 230 m</h2>
-          <p id="runway-summary" class="muted">Calculando componentes do vento…</p>
-        </div>
-        <span id="preferred-runway" class="runway-badge">Calculando…</span>
-      </div>
-      <div class="runway-board">
-        <div class="runway-visual" aria-label="Representação esquemática da pista 13 31">
-          <span class="runway-number runway-13">13</span>
-          <div class="runway-strip"><span></span></div>
-          <span class="runway-number runway-31">31</span>
-        </div>
-        <div class="runway-wind-line"><span>Vento</span><strong id="runway-wind">--</strong></div>
-      </div>
-      <div class="runway-components">
-        <article><span>Componente longitudinal</span><strong id="headwind-component">-- km/h</strong><small id="headwind-label">--</small></article>
-        <article><span>Componente de través</span><strong id="crosswind-component">-- km/h</strong><small id="crosswind-side">--</small></article>
-        <article><span>Ângulo com a pista</span><strong id="wind-angle">--°</strong><small id="wind-angle-label">--</small></article>
-      </div>
-    </section>
+    <section class="card runway-card"><div class="runway-heading"><div><p class="eyebrow">Operação da pista</p><h2>Pista 13 / 31 · 230 m</h2><p id="runway-summary" class="muted">Calculando componentes do vento…</p></div><span id="preferred-runway" class="runway-badge">Calculando…</span></div><div class="runway-board"><div class="runway-visual" aria-label="Representação esquemática da pista 13 31"><span class="runway-number runway-13">13</span><div class="runway-strip"><span></span></div><span class="runway-number runway-31">31</span></div><div class="runway-wind-line"><span>Vento</span><strong id="runway-wind">--</strong></div></div><div class="runway-components"><article><span>Componente longitudinal</span><strong id="headwind-component">-- km/h</strong><small id="headwind-label">--</small></article><article><span>Componente de través</span><strong id="crosswind-component">-- km/h</strong><small id="crosswind-side">--</small></article><article><span>Ângulo com a pista</span><strong id="wind-angle">--°</strong><small id="wind-angle-label">--</small></article></div></section>
 
-    <section class="grid detail-grid">
-      <article class="card metric-card"><span>Umidade</span><strong id="humidity">--%</strong><small id="dew-point">Orvalho --°C</small></article>
-      <article class="card metric-card"><span>Pressão</span><strong id="pressure">-- hPa</strong><small>pressão ao nível do local</small></article>
-      <article class="card metric-card"><span>Visibilidade</span><strong id="visibility">-- km</strong><small id="visibility-label">--</small></article>
-      <article class="card metric-card"><span id="precipitation-label">Precipitação · modelo</span><strong id="rain-probability">-- mm</strong><small id="rain-total">Próxima hora: --%</small></article>
-      <article class="card metric-card"><span id="uv-card-label">UV atual · modelo</span><strong id="uv-index">--</strong><small id="uv-label">--</small></article>
-      <article class="card metric-card"><span>Pôr do sol</span><strong id="sunset">--:--</strong><small id="sunrise">Nascer --:--</small></article>
-    </section>
+    <section class="grid detail-grid"><article class="card metric-card"><span>Umidade</span><strong id="humidity">--%</strong><small id="dew-point">Orvalho --°C</small></article><article class="card metric-card"><span>Pressão</span><strong id="pressure">-- hPa</strong><small>pressão ao nível do local</small></article><article class="card metric-card"><span>Visibilidade</span><strong id="visibility">-- km</strong><small id="visibility-label">--</small></article><article class="card metric-card"><span id="precipitation-label">Precipitação · modelo</span><strong id="rain-probability">-- mm</strong><small id="rain-total">Próxima hora: --%</small></article><article class="card metric-card"><span id="uv-card-label">UV atual · modelo</span><strong id="uv-index">--</strong><small id="uv-label">--</small></article><article class="card metric-card"><span>Pôr do sol</span><strong id="sunset">--:--</strong><small id="sunrise">Nascer --:--</small></article></section>
 
-    <section class="card forecast-card">
-      <div class="section-title">
-        <div><p class="eyebrow">Próximas horas</p><h2>Janela de voo e tendência do vento</h2></div>
-        <span class="section-note">previsão horária · componentes para a pista preferencial</span>
-      </div>
-      <div id="hourly-forecast" class="hourly-forecast"></div>
-    </section>
+    <section class="card forecast-card"><div class="section-title"><div><p class="eyebrow">Próximas horas</p><h2>Janela de voo e tendência do vento</h2></div><span class="section-note">previsão horária · componentes para a pista preferencial</span></div><div id="hourly-forecast" class="hourly-forecast"></div></section>
 
     <section class="grid aviation-grid">
-      <section class="card metar-card" id="metar-card">
-        <div class="section-title">
-          <div><p class="eyebrow">Observação aeronáutica</p><h2>METAR · Fortaleza (SBFZ)</h2></div>
-          <span id="metar-age" class="section-note">consultando…</span>
-        </div>
-        <p id="metar-raw" class="metar-raw">Aguardando observação…</p>
-        <dl id="metar-details" class="metar-details"></dl>
-        <p class="source-line">METAR SBFZ é consultado diretamente em fontes públicas com redundância e validação de idade. SBFZ é observação regional de Fortaleza, não medição no CIM.</p>
-      </section>
-
-      <section class="card radar-card">
-        <div class="section-title">
-          <div><p class="eyebrow">Precipitação observada na região</p><h2>Radar e chuva na região</h2></div>
-          <a class="external-link" href="https://www.windy.com/-Weather-radar-radar?radar,-3.845481,-38.460447,10" target="_blank" rel="noopener noreferrer">Abrir mapa ↗</a>
-        </div>
-        <div class="radar-frame"><iframe src="https://embed.windy.com/embed2.html?lat=-3.845481&lon=-38.460447&detailLat=-3.845481&detailLon=-38.460447&width=650&height=450&zoom=9&level=surface&overlay=radar&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" title="Radar meteorológico centrado na região do CIM" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
-      </section>
+      <section class="card metar-card" id="metar-card"><div class="section-title"><div><p class="eyebrow">Observação aeronáutica</p><h2>METAR · Fortaleza (SBFZ)</h2></div><span id="metar-age" class="section-note">consultando…</span></div><p id="metar-raw" class="metar-raw">Aguardando observação…</p><dl id="metar-details" class="metar-details"></dl><p class="source-line">METAR SBFZ é consultado diretamente em fontes públicas com redundância e validação de idade. SBFZ é observação regional de Fortaleza, não medição no CIM.</p></section>
+      <section class="card radar-card"><div class="section-title"><div><p class="eyebrow">Precipitação observada na região</p><h2>Radar e chuva na região</h2></div><a class="external-link" href="https://www.windy.com/-Weather-radar-radar?radar,-3.845481,-38.460447,10" target="_blank" rel="noopener noreferrer">Abrir mapa ↗</a></div><div class="radar-frame"><iframe src="https://embed.windy.com/embed2.html?lat=-3.845481&lon=-38.460447&detailLat=-3.845481&detailLon=-38.460447&width=650&height=450&zoom=9&level=surface&overlay=radar&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" title="Radar meteorológico centrado na região do CIM" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></section>
     </section>
 
-    <section class="card forecast-card">
-      <div class="section-title"><div><p class="eyebrow">Previsão</p><h2>Próximos 7 dias</h2></div></div>
-      <div id="daily-forecast" class="daily-forecast"></div>
-    </section>
+    <section class="card forecast-card"><div class="section-title"><div><p class="eyebrow">Previsão</p><h2>Próximos 7 dias</h2></div></div><div id="daily-forecast" class="daily-forecast"></div></section>
 
-    <footer>
-      <p>Open-Meteo: estimativa de modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação no campo. Precipitação e rajada são agregadas no intervalo indicado pelo próprio modelo.</p>
-      <p>METAR: observação SBFZ com redundância de fonte e limite de idade. Os níveis FAVORÁVEL / ATENÇÃO / DESAFIADOR / DESFAVORÁVEL são heurísticas operacionais do painel CIM, não limites legais ou de fabricante. Nada nesta página substitui a biruta, a observação local ou a decisão do piloto.</p>
-    </footer>
+    <footer><p>Open-Meteo: estimativa de modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação no campo. Precipitação e rajada são agregadas no intervalo indicado pelo próprio modelo.</p><p>METAR: observação SBFZ com redundância de fonte e limite de idade. Os níveis FAVORÁVEL / ATENÇÃO / DESAFIADOR / DESFAVORÁVEL são heurísticas operacionais do painel CIM, não limites legais ou de fabricante. Nada nesta página substitui a biruta, a observação local ou a decisão do piloto.</p></footer>
   </main>
 
-  <script src="app.js?v=20260831-final"></script>
+  <script src="app-core.js?v=20260831-final"></script>
+  <script src="app-render.js?v=20260831-final"></script>
+  <script src="app-metar.js?v=20260831-final"></script>
+  <script src="app-start.js?v=20260831-final"></script>
 </body>
 </html>
