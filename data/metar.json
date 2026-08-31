@@ -1,20 +1,20 @@
 {
   "station": "SBFZ",
-  "fetched_at": "2026-08-31T14:37:09.337801Z",
+  "fetched_at": "2026-08-31T18:05:15.530212Z",
   "metar": {
     "icaoId": "SBFZ",
-    "receiptTime": "2026-08-31T14:01:10.465Z",
-    "obsTime": 1788184800,
-    "reportTime": "2026-08-31T14:00:00.000Z",
-    "temp": 29,
+    "receiptTime": "2026-08-31T17:50:59.494Z",
+    "obsTime": 1788199200,
+    "reportTime": "2026-08-31T18:00:00.000Z",
+    "temp": 30,
     "dewp": 23,
-    "wdir": 120,
-    "wspd": 17,
+    "wdir": 100,
+    "wspd": 16,
     "visib": "6+",
-    "altim": 1014,
+    "altim": 1012,
     "qcField": 0,
     "metarType": "METAR",
-    "rawOb": "METAR SBFZ 311400Z 12017KT 9999 BKN027 29/23 Q1014",
+    "rawOb": "METAR SBFZ 311800Z 10016KT 9999 BKN025 30/23 Q1012",
     "lat": -3.776,
     "lon": -38.533,
     "elev": 32,
@@ -23,7 +23,7 @@
     "clouds": [
       {
         "cover": "BKN",
-        "base": 2700
+        "base": 2500
       }
     ],
     "fltCat": "MVFR"
