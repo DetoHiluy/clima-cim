@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - '.github/workflows/update-traffic.yml'
+      - 'traffic.js'
   schedule:
     - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
   workflow_dispatch:
@@ -22,8 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Checkout do cache ADS-B
         uses: actions/checkout@v4
+        with:
+          ref: traffic-data
+          fetch-depth: 1
 
       - name: Consultar tráfego ADS-B
         shell: bash
@@ -33,6 +37,7 @@ jobs:
 
           curl --fail --silent --show-error \
             --retry 3 --retry-delay 5 \
+            --connect-timeout 10 --max-time 30 \
             -A 'CIM-Clima/1.0 (GitHub Pages; https://detohiluy.github.io/clima-cim/)' \
             'https://api.adsb.lol/v2/lat/-3.845481/lon/-38.460447/dist/15' \
             -o /tmp/traffic-response.json
@@ -83,7 +88,7 @@ jobs:
               f.write('\n')
           PY
 
-      - name: Publicar atualização
+      - name: Publicar somente no branch traffic-data
         shell: bash
         run: |
           if git diff --quiet -- data/traffic.json; then
@@ -94,5 +99,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/traffic.json
-          git commit -m 'Atualiza tráfego aéreo próximo ao CIM'
-          git push
+          git commit -m 'Atualiza backup de tráfego aéreo próximo ao CIM'
+          git push origin HEAD:traffic-data
