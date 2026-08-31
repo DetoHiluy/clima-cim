@@ -2,6 +2,7 @@
   'use strict';
 
   const METAR_DIRECT='https://metars.eu/api/metars/SBFZ';
+  const METAR_BACKUP='https://raw.githubusercontent.com/DetoHiluy/clima-cim/live-data/data/metar.json';
   const nativeFetch=window.fetch.bind(window);
   const nativeSetInterval=window.setInterval.bind(window);
   const state=window.CIM_RELIABILITY={metarSource:'',metarLastSuccess:null,metarLastError:null};
@@ -84,12 +85,24 @@
     };
   }
 
+  function jsonResponse(payload){
+    return new Response(JSON.stringify(payload),{status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  }
+
   async function directMetarResponse(){
     const payload=normalizeMetarsEu(await fetchJson(`${METAR_DIRECT}?t=${Date.now()}`));
     state.metarSource='metars.eu · direto';
     state.metarLastSuccess=new Date().toISOString();
     state.metarLastError=null;
-    return new Response(JSON.stringify(payload),{status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+    return jsonResponse(payload);
+  }
+
+  async function backupMetarResponse(){
+    const payload=await fetchJson(`${METAR_BACKUP}?t=${Date.now()}`);
+    if(!payload?.metar)throw new Error('backup METAR vazio');
+    state.metarSource='AWC · backup live-data';
+    state.metarLastSuccess=new Date().toISOString();
+    return jsonResponse(payload);
   }
 
   window.fetch=async function(input,init){
@@ -97,9 +110,14 @@
     if(isMetarCacheUrl(url)){
       try{
         return await directMetarResponse();
-      }catch(error){
-        state.metarLastError=String(error?.message||error);
-        state.metarSource='AWC · backup GitHub';
+      }catch(directError){
+        try{
+          state.metarLastError=String(directError?.message||directError);
+          return await backupMetarResponse();
+        }catch(backupError){
+          state.metarLastError=`direto: ${directError?.message||directError}; backup: ${backupError?.message||backupError}`;
+          state.metarSource='backup local';
+        }
       }
     }
     return nativeFetch(input,init);
@@ -117,8 +135,7 @@
   function annotateSource(){
     const el=document.getElementById('metar-age');
     if(!el||!state.metarSource)return;
-    const suffix=` · ${state.metarSource}`;
-    if(!el.textContent.includes(state.metarSource))el.textContent=`${el.textContent}${suffix}`;
+    if(!el.textContent.includes(state.metarSource))el.textContent=`${el.textContent} · ${state.metarSource}`;
   }
 
   window.addEventListener('DOMContentLoaded',()=>{
