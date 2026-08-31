@@ -1,4 +1,4 @@
-const CIM={lat:-3.845481,lon:-38.460447,runwayLength:230,runwayWidth:12,runwayTrueHeading:109.8,runwayEnds:[{name:'13',magnetic:130,trueHeading:109.8},{name:'31',magnetic:310,trueHeading:289.8}],timezone:'America/Fortaleza',regRadius:300,pilotOffset:-38};
+const CIM={lat:-3.845481,lon:-38.460447,runwayLength:230,runwayWidth:12,runwayTrueHeading:109.8,runwayEnds:[{name:'13',magnetic:130,trueHeading:109.8},{name:'31',magnetic:310,trueHeading:289.8}],timezone:'America/Fortaleza',regRadius:300,pilotOffset:38};
 const CARTO_KEY='cb1_2mwu_1_8f33f90d0126a08fc2b8abf2';
 function normalize(a){return((a%360)+360)%360}
 function signedAngle(a,b){let d=normalize(a-b);if(d>180)d-=360;return d}
@@ -31,14 +31,15 @@ function initMap(){
  L.marker(pilot,{icon:badge('PILOTO','#f4b942','#07131f')}).addTo(map);
  const outer=L.circle(pilot,{radius:CIM.regRadius,color:'#2563eb',weight:3,dashArray:'11 8',fill:false}).addTo(map).bindTooltip('LIMITE DECEA · 300 m DO PILOTO');
  function sector(startBearing,endBearing){const pts=[pilot];for(let b=startBearing;b<=endBearing;b+=5)pts.push(destination(pilot[0],pilot[1],normalize(b),CIM.regRadius));pts.push(destination(pilot[0],pilot[1],normalize(endBearing),CIM.regRadius));return pts}
- const frontStart=CIM.runwayTrueHeading,frontEnd=CIM.runwayTrueHeading+180;
- const rearStart=CIM.runwayTrueHeading+180,rearEnd=CIM.runwayTrueHeading+360;
- L.polygon(sector(frontStart,frontEnd),{color:'#2563eb',weight:1,fillColor:'#3b82f6',fillOpacity:.12}).addTo(map);
- L.polygon(sector(rearStart,rearEnd),{color:'#dc2626',weight:1,fillColor:'#ef4444',fillOpacity:.14}).addTo(map);
- const frontBearing=CIM.runwayTrueHeading+90,rearBearing=CIM.runwayTrueHeading-90;
- const frontLabel=destination(pilot[0],pilot[1],frontBearing,175),rearLabel=destination(pilot[0],pilot[1],rearBearing,175);
- L.marker(frontLabel,{icon:L.divIcon({className:'map-zone-wrap',html:'<div class="map-zone allowed"><strong>SETOR DE VOO</strong><span>até 300 m do piloto</span></div>',iconSize:[140,52],iconAnchor:[70,26]})}).addTo(map);
- L.marker(rearLabel,{icon:L.divIcon({className:'map-zone-wrap',html:'<div class="map-zone forbidden"><strong>NÃO VOAR</strong><span>atrás dos pilotos · regra CIM</span></div>',iconSize:[160,52],iconAnchor:[80,26]})}).addTo(map);
+ // Frente de voo: lado da lagoa (NNE da linha dos pilotos, perpendicular ao eixo da pista).
+ const allowedStart=CIM.runwayTrueHeading+180,allowedEnd=CIM.runwayTrueHeading+360;
+ const forbiddenStart=CIM.runwayTrueHeading,forbiddenEnd=CIM.runwayTrueHeading+180;
+ L.polygon(sector(allowedStart,allowedEnd),{color:'#2563eb',weight:1,fillColor:'#3b82f6',fillOpacity:.14}).addTo(map).bindTooltip('SETOR DE VOO · lado da lagoa');
+ L.polygon(sector(forbiddenStart,forbiddenEnd),{color:'#dc2626',weight:1,fillColor:'#ef4444',fillOpacity:.15}).addTo(map).bindTooltip('NÃO VOAR · atrás dos pilotos');
+ const allowedBearing=CIM.runwayTrueHeading-90,forbiddenBearing=CIM.runwayTrueHeading+90;
+ const allowedLabel=destination(pilot[0],pilot[1],allowedBearing,175),forbiddenLabel=destination(pilot[0],pilot[1],forbiddenBearing,175);
+ L.marker(allowedLabel,{icon:L.divIcon({className:'map-zone-wrap',html:'<div class="map-zone allowed"><strong>SETOR DE VOO</strong><span>LADO DA LAGOA · até 300 m</span></div>',iconSize:[160,52],iconAnchor:[80,26]})}).addTo(map);
+ L.marker(forbiddenLabel,{icon:L.divIcon({className:'map-zone-wrap',html:'<div class="map-zone forbidden"><strong>NÃO VOAR</strong><span>atrás dos pilotos · regra CIM</span></div>',iconSize:[160,52],iconAnchor:[80,26]})}).addTo(map);
  map.fitBounds(outer.getBounds().pad(.14));L.control.scale({imperial:false,maxWidth:160}).addTo(map);setTimeout(()=>map.invalidateSize(),150);window.addEventListener('resize',()=>map.invalidateSize());
 }
 async function load(){const p=new URLSearchParams({latitude:CIM.lat,longitude:CIM.lon,timezone:CIM.timezone,current:'wind_speed_10m,wind_direction_10m,wind_gusts_10m',hourly:'wind_speed_10m,wind_direction_10m,wind_gusts_10m'});try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?${p}`);if(!r.ok)throw Error();render(await r.json())}catch{const pill=document.querySelector('#operation-pill');pill.className='operation-pill bad';pill.querySelector('strong').textContent='Falha ao consultar vento'}}
