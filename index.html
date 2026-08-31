@@ -13,7 +13,7 @@
   <link rel="preload" as="image" href="assets/cim-pista-hero.svg">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="status-enhancements.css?v=20260831-1454">
-  <link rel="stylesheet" href="hero-photo.css?v=20260831-hero1">
+  <link rel="stylesheet" href="layout-v2.css?v=20260831-1705">
 </head>
 <body>
   <main class="page-shell">
@@ -38,18 +38,17 @@
     </header>
 
     <section class="cim-hero" aria-label="Vista aérea da pista do Centro Integrado de Modelismo">
-      <p class="cim-hero-caption">Vista aérea da pista do CIM</p>
       <div class="cim-hero-content">
-        <p class="eyebrow">Centro Integrado de Modelismo · Eusébio, Ceará</p>
-        <h2>O campo, o clima e o voo em uma única leitura.</h2>
-        <p class="cim-hero-copy">Condições meteorológicas, vento na pista 13/31 e referências operacionais reunidas em um painel pensado para quem vai voar no CIM.</p>
-        <div class="cim-hero-meta" aria-label="Informações da pista">
-          <span>Pista 13 / 31</span>
-          <span>230 × 12 m</span>
-          <span>Atualização automática</span>
-          <a class="cim-hero-link" href="pista.html">Ver pista e espaço de voo →</a>
+        <div class="cim-hero-kicker"><i aria-hidden="true"></i><span>Centro Integrado de Modelismo</span></div>
+        <h2>Pista 13 / 31</h2>
+        <p class="cim-hero-sub">Eusébio · Ceará · 230 × 12 m</p>
+        <div class="cim-hero-meta" aria-label="Atalhos e informações da pista">
+          <span>Clima e vento</span>
+          <span>Briefing operacional</span>
+          <a class="cim-hero-link" href="pista.html">Pista e espaço de voo →</a>
         </div>
       </div>
+      <p class="cim-hero-caption">Vista aérea real do CIM · Lagoa da Precabura</p>
     </section>
 
     <section id="status-card" class="status-card loading" aria-live="polite">
@@ -78,15 +77,15 @@
     <section class="card forecast-card"><div class="section-title"><div><p class="eyebrow">Próximas horas</p><h2>Janela de voo e tendência do vento</h2></div><span class="section-note">previsão horária · componentes para a pista preferencial</span></div><div id="hourly-forecast" class="hourly-forecast"></div></section>
 
     <section class="grid aviation-grid">
-      <section class="card metar-card" id="metar-card"><div class="section-title"><div><p class="eyebrow">Observação aeronáutica</p><h2>METAR · Fortaleza (SBFZ)</h2></div><span id="metar-age" class="section-note">consultando…</span></div><p id="metar-raw" class="metar-raw">Aguardando observação…</p><dl id="metar-details" class="metar-details"></dl><p class="source-line">METAR SBFZ com três camadas: metars.eu/NOAA-AWC como rota direta, VATSIM como redundância direta e snapshot oficial NOAA/AWC mantido pelo GitHub Actions. Observações vencidas são rejeitadas ou claramente sinalizadas. A observação é regional e não representa medição no CIM.</p></section>
+      <section class="card metar-card" id="metar-card"><div class="section-title"><div><p class="eyebrow">Observação aeronáutica</p><h2>METAR · Fortaleza (SBFZ)</h2></div><span id="metar-age" class="section-note">consultando…</span></div><p id="metar-raw" class="metar-raw">Aguardando observação…</p><dl id="metar-details" class="metar-details"></dl><p class="source-line">O painel tenta fontes METAR diretas e valida o horário da observação antes de exibi-la. Um snapshot do GitHub existe apenas como último recurso; se estiver antigo, é rejeitado. SBFZ é referência regional e não representa medição no CIM.</p></section>
       <section class="card radar-card"><div class="section-title"><div><p class="eyebrow">Precipitação observada na região</p><h2>Radar e chuva na região</h2></div><a class="external-link" href="https://www.windy.com/-Weather-radar-radar?radar,-3.845481,-38.460447,10" target="_blank" rel="noopener noreferrer">Abrir mapa ↗</a></div><div class="radar-frame"><iframe src="https://embed.windy.com/embed2.html?lat=-3.845481&lon=-38.460447&detailLat=-3.845481&detailLon=-38.460447&width=650&height=450&zoom=9&level=surface&overlay=radar&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" title="Radar meteorológico centrado na região do CIM" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></section>
     </section>
 
     <section class="card forecast-card"><div class="section-title"><div><p class="eyebrow">Previsão</p><h2>Próximos 7 dias</h2></div></div><div id="daily-forecast" class="daily-forecast"></div></section>
 
-    <footer><p>Open-Meteo: estimativa por modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação instalada no campo.</p><p>METAR: estação SBFZ com redundância de transporte/fonte e validação de idade. Se nenhuma rota entregar observação suficientemente recente, o painel mostra indisponibilidade em vez de apresentar dado antigo como atual. Os indicadores operacionais são auxiliares e não substituem a biruta, a observação no local e a decisão do piloto.</p></footer>
+    <footer><p>Open-Meteo: estimativa por modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação instalada no campo.</p><p>METAR: estação SBFZ com redundância de fonte e validação de idade. Se nenhuma fonte entregar observação suficientemente recente, o painel mostra indisponibilidade. Os indicadores operacionais são auxiliares e não substituem a biruta, a observação no local e a decisão do piloto.</p></footer>
   </main>
-  <script src="reliability.js?v=20260831-1645"></script>
-  <script src="app.js?v=20260831-1540"></script>
+  <script src="reliability.js?v=20260831-1705"></script>
+  <script src="app.js?v=20260831-1705"></script>
 </body>
 </html>
