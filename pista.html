@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06131f">
+  <meta name="description" content="View operacional da pista 13/31 do Centro Integrado de Modelismo — CIM.">
+  <title>CIM · Pista 13/31</title>
+  <link rel="stylesheet" href="pista.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Voltar ao clima do CIM">
+        <span class="brand-mark">CIM</span>
+        <span><small>Centro Integrado de Modelismo</small><strong>Pista 13 / 31</strong></span>
+      </a>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="index.html">Clima</a>
+        <a class="active" href="pista.html">Pista</a>
+      </nav>
+      <div class="clock"><strong id="clock">--:--:--</strong><span id="date">--</span></div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Carta visual do campo</p>
+        <h1>230 m <span>×</span> 12 m</h1>
+        <p class="hero-sub">Eixo magnético operacional <b>130° / 310°</b>. A representação abaixo mantém a proporção real aproximada de comprimento e largura da pista.</p>
+      </div>
+      <div id="operation-pill" class="operation-pill loading"><span></span><strong>Consultando vento</strong></div>
+    </section>
+
+    <section class="art-card" aria-label="Representação artística e operacional da pista do CIM">
+      <div class="terrain-grid"></div>
+      <div class="compass" aria-hidden="true">
+        <span class="n">N</span><span class="e">L</span><span class="s">S</span><span class="w">O</span>
+        <i class="axis-ns"></i><i class="axis-ew"></i>
+      </div>
+
+      <div id="wind-vector" class="wind-vector" aria-hidden="true">
+        <span class="wind-arrow">➤</span>
+        <strong id="wind-vector-label">-- km/h</strong>
+      </div>
+
+      <div class="runway-stage">
+        <div class="runway-shadow"></div>
+        <div class="runway" aria-label="Pista 13 31, 230 metros por 12 metros">
+          <div class="threshold threshold-13"><b>13</b><span></span></div>
+          <div class="centerline"></div>
+          <div class="runway-dim length-dim"><span>230 m</span></div>
+          <div class="runway-dim width-dim"><span>12 m</span></div>
+          <div class="threshold threshold-31"><b>31</b><span></span></div>
+        </div>
+      </div>
+
+      <div class="art-caption">
+        <span>Centro Integrado de Modelismo</span>
+        <strong>CIM · Eusébio, Ceará</strong>
+      </div>
+    </section>
+
+    <section class="brief-grid">
+      <article class="panel primary">
+        <p class="eyebrow">Pista recomendada</p>
+        <strong id="preferred-runway" class="big-value">--</strong>
+        <p id="runway-reason">Calculando a melhor cabeceira para o vento atual.</p>
+      </article>
+      <article class="panel">
+        <span>Vento atual</span><strong id="wind">--</strong><small id="wind-dir">--</small>
+      </article>
+      <article class="panel">
+        <span>Rajadas</span><strong id="gust">--</strong><small id="gust-delta">--</small>
+      </article>
+      <article class="panel">
+        <span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small>
+      </article>
+      <article class="panel">
+        <span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small>
+      </article>
+      <article class="panel">
+        <span>Ângulo relativo</span><strong id="relative-angle">--</strong><small id="angle-label">--</small>
+      </article>
+    </section>
+
+    <section class="forecast-panel">
+      <div class="section-heading"><div><p class="eyebrow">Tendência</p><h2>Pista e vento nas próximas horas</h2></div><span id="updated">--</span></div>
+      <div id="trend" class="trend"></div>
+    </section>
+
+    <section class="map-panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">Localização</p><h2>Área do CIM</h2></div>
+        <a href="https://www.openstreetmap.org/?mlat=-3.8455&mlon=-38.4596#map=17/-3.8455/-38.4596" target="_blank" rel="noopener noreferrer">Abrir mapa ↗</a>
+      </div>
+      <div class="map-wrap"><iframe title="Mapa da área do Centro Integrado de Modelismo" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-38.4630%2C-3.8485%2C-38.4562%2C-3.8427&layer=mapnik&marker=-3.8455%2C-38.4596"></iframe></div>
+      <p class="source">Base cartográfica: OpenStreetMap. Coordenadas de referência do CIM: −3,8455 / −38,4596.</p>
+    </section>
+
+    <footer>
+      <p>Dimensões atuais informadas pelo CIM: <strong>230 m × 12 m</strong>. A view é uma representação operacional; não deve ser usada como carta aeronáutica oficial.</p>
+      <p>Dados meteorológicos: Open-Meteo.</p>
+    </footer>
+  </main>
+  <script src="pista.js"></script>
+</body>
+</html>
