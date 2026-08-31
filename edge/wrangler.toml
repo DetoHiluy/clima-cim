@@ -1,0 +1,4 @@
+name = "cim-data"
+main = "cim-data-worker.js"
+compatibility_date = "2026-08-31"
+workers_dev = true
