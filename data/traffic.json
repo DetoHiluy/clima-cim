@@ -1,22 +1,37 @@
 {
   "source": "adsb.lol",
   "radius_nm": 15,
-  "fetched_at": "2026-08-31T14:48:00.139089Z",
+  "fetched_at": "2026-08-31T18:05:27.990603Z",
   "aircraft": [
     {
-      "hex": "e497ae",
-      "flight": "AZU4712",
-      "registration": "PR-YJE",
-      "type": "A21N",
-      "lat": -3.762955,
-      "lon": -38.582355,
-      "alt_baro": 825,
-      "alt_geom": 900,
-      "gs": 119.8,
-      "track": 104.5,
-      "squawk": "4176",
+      "hex": "aa8633",
+      "flight": "PSIEG",
+      "registration": "N7776A",
+      "type": "C25A",
+      "lat": -3.768776,
+      "lon": -38.560449,
+      "alt_baro": 500,
+      "alt_geom": 425,
+      "gs": 102.4,
+      "track": 104.72,
+      "squawk": "6403",
+      "seen": 0.0,
+      "seen_pos": 0.691
+    },
+    {
+      "hex": "aa57fb",
+      "flight": "PSFRY",
+      "registration": "N766BR",
+      "type": null,
+      "lat": -3.795456,
+      "lon": -38.515599,
+      "alt_baro": 2700,
+      "alt_geom": 2800,
+      "gs": 118.4,
+      "track": 195.68,
+      "squawk": "5263",
       "seen": 0.1,
-      "seen_pos": 0.061
+      "seen_pos": 0.31
     }
   ]
 }
