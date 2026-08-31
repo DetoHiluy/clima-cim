@@ -2,7 +2,7 @@
   'use strict';
 
   const METAR_DIRECT='https://metars.eu/api/metars/SBFZ';
-  const METAR_BACKUP='https://raw.githubusercontent.com/DetoHiluy/clima-cim/live-data/data/metar.json';
+  const METAR_BACKUP='https://raw.githubusercontent.com/DetoHiluy/clima-cim/metar-data/data/metar.json';
   const nativeFetch=window.fetch.bind(window);
   const nativeSetInterval=window.setInterval.bind(window);
   const state=window.CIM_RELIABILITY={metarSource:'',metarLastSuccess:null,metarLastError:null};
@@ -100,7 +100,7 @@
   async function backupMetarResponse(){
     const payload=await fetchJson(`${METAR_BACKUP}?t=${Date.now()}`);
     if(!payload?.metar)throw new Error('backup METAR vazio');
-    state.metarSource='AWC · backup live-data';
+    state.metarSource='AWC · backup metar-data';
     state.metarLastSuccess=new Date().toISOString();
     return jsonResponse(payload);
   }
