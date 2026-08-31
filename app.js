@@ -40,17 +40,43 @@ function runwayAnalysis(direction,speed){
 function evaluate(current,daily){
   const rw=runwayAnalysis(current.wind_direction_10m,current.wind_speed_10m);
   const cross=Math.abs(rw.cross),gust=current.wind_gusts_10m||0,rain=daily.precipitation_probability_max?.[0]||0,vis=(current.visibility||10000)/1000,spread=Math.max(0,gust-current.wind_speed_10m);
-  let score=0;const factors=[];
-  if(cross>20){score+=3;factors.push(`través ${cross.toFixed(1)} km/h`)}else if(cross>12){score+=1;factors.push(`través ${cross.toFixed(1)} km/h`)}else factors.push(`través ${cross.toFixed(1)} km/h`);
-  if(gust>35){score+=3;factors.push(`rajadas ${Math.round(gust)} km/h`)}else if(gust>25){score+=1;factors.push(`rajadas ${Math.round(gust)} km/h`)}else factors.push(`rajadas ${Math.round(gust)} km/h`);
+  let score=0;const factors=[];let hardStop=false;
+
+  if(cross>25){score+=5;hardStop=true;factors.push(`través ${cross.toFixed(1)} km/h`)}
+  else if(cross>20){score+=3;factors.push(`través ${cross.toFixed(1)} km/h`)}
+  else if(cross>12){score+=1;factors.push(`través ${cross.toFixed(1)} km/h`)}
+  else factors.push(`través ${cross.toFixed(1)} km/h`);
+
+  if(gust>45){score+=5;hardStop=true;factors.push(`rajadas ${Math.round(gust)} km/h`)}
+  else if(gust>35){score+=3;factors.push(`rajadas ${Math.round(gust)} km/h`)}
+  else if(gust>25){score+=1;factors.push(`rajadas ${Math.round(gust)} km/h`)}
+  else factors.push(`rajadas ${Math.round(gust)} km/h`);
+
   if(spread>18){score+=1;factors.push(`rajada +${Math.round(spread)} km/h`)}
-  if(rain>=60){score+=3;factors.push(`chuva ${Math.round(rain)}%`)}else if(rain>=35){score+=1;factors.push(`chuva ${Math.round(rain)}%`)}else factors.push(`chuva ${Math.round(rain)}%`);
-  if(vis<4){score+=3;factors.push(`visib. ${vis.toFixed(1)} km`)}else if(vis<8){score+=1;factors.push(`visib. ${vis.toFixed(1)} km`)}
-  if([95,96,99].includes(current.weather_code)){score+=5;factors.push('trovoadas')}
+  if(rain>=70){score+=3;factors.push(`chuva ${Math.round(rain)}%`)}
+  else if(rain>=35){score+=1;factors.push(`chuva ${Math.round(rain)}%`)}
+  else factors.push(`chuva ${Math.round(rain)}%`);
+
+  if(vis<2){score+=5;hardStop=true;factors.push(`visib. ${vis.toFixed(1)} km`)}
+  else if(vis<4){score+=3;factors.push(`visib. ${vis.toFixed(1)} km`)}
+  else if(vis<8){score+=1;factors.push(`visib. ${vis.toFixed(1)} km`)}
+
+  if([95,96,99].includes(current.weather_code)){score+=6;hardStop=true;factors.push('trovoadas')}
+
   let level='good',title='Boa janela para voar',message='Condições meteorológicas favoráveis no momento. Confirme a biruta e faça o checklist antes da decolagem.',word='FAVORÁVEL';
-  if(score>=3){level='bad';title='Condições desfavoráveis';message='Um ou mais fatores meteorológicos estão fora de uma margem confortável para o aeromodelismo. Avalie adiar o voo.',word='DESFAVORÁVEL'}
+  if(hardStop||score>=5){level='bad';title='Condições desfavoráveis';message='As condições atuais não oferecem uma margem operacional adequada. A recomendação é não voar e aguardar melhora.',word='DESFAVORÁVEL'}
+  else if(score>=3){level='challenging';title='Condições desafiadoras';message='O voo exige experiência, margem maior e aeronave adequada às condições. Pilotos menos experientes devem considerar aguardar.',word='DESAFIADOR'}
   else if(score>=1){level='caution';title='Atenção às condições';message='O voo pode ser possível, mas há fatores que pedem margem maior, principalmente na aproximação e no pouso.',word='ATENÇÃO'}
   return{level,title,message,word,factors,runway:rw};
+}
+
+function renderRunwayWindRelative(rw,c){
+  const line=document.querySelector('.runway-wind-line');
+  if(!line)return;
+  const flowRotation=normalizeAngle(rw.delta+180);
+  const relative=Math.abs(rw.delta);
+  const relation=relative<10?'quase alinhado':relative<30?'levemente cruzado':relative<60?'cruzado':'fortemente cruzado';
+  line.innerHTML=`<span aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(78,196,223,.12);color:#4ec4df;font-size:1.25rem;font-weight:900;transform:rotate(${flowRotation}deg);transition:transform .35s ease">➤</span><span>Vento relativo à pista ${rw.name}</span><strong>${Math.round(c.wind_speed_10m)} km/h · ${relative.toFixed(0)}° · ${relation}</strong>`;
 }
 
 function render(data){
@@ -70,6 +96,7 @@ function render(data){
   $('#wind-angle').textContent=`${Math.abs(rw.delta).toFixed(0)}°`;$('#wind-angle-label').textContent=Math.abs(rw.delta)<15?'quase alinhado':Math.abs(rw.delta)<45?'parcialmente cruzado':'predominantemente de través';
   $('#runway-wind').textContent=`${Math.round(c.wind_direction_10m)}° / ${Math.round(c.wind_speed_10m)} km/h · raj. ${Math.round(c.wind_gusts_10m)}`;
   $('#runway-summary').textContent=`Com o vento atual, a pista ${rw.name} oferece o melhor componente de proa.`;
+  renderRunwayWindRelative(rw,c);
 
   const vis=(c.visibility||0)/1000;
   $('#humidity').textContent=`${Math.round(c.relative_humidity_2m)}%`;$('#dew-point').textContent=`Orvalho ${Math.round(c.dew_point_2m)}°C`;$('#pressure').textContent=`${Math.round(c.surface_pressure)} hPa`;$('#visibility').textContent=`${vis.toFixed(1)} km`;$('#visibility-label').textContent=visibilityClass(vis);$('#rain-probability').textContent=`${Math.round(d.precipitation_probability_max[0]||0)}%`;$('#rain-total').textContent=`${Number(d.precipitation_sum[0]||0).toFixed(1)} mm previstos`;$('#uv-index').textContent=Math.round(d.uv_index_max[0]||0);$('#uv-label').textContent=uvClass(d.uv_index_max[0]||0);$('#sunset').textContent=formatTime(d.sunset[0]);$('#sunrise').textContent=`Nascer ${formatTime(d.sunrise[0])}`;$('#updated-at').textContent=`Atualizado ${formatTime(new Date().toISOString())}`;
