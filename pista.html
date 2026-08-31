@@ -55,7 +55,8 @@
         <p><strong>Círculo tracejado azul:</strong> referência horizontal geral com <strong>raio de 300 m a partir do piloto</strong>; portanto, o círculo completo tem <strong>600 m de diâmetro</strong>. A linha marcada “RAIO 300 m” permite conferir visualmente a escala no mapa.</p>
         <p><strong>Posição do piloto:</strong> ainda é aproximada, calculada geometricamente a partir do centro da pista. Assim que tivermos a coordenada medida da linha real dos pilotos, ela deve substituir essa referência.</p>
         <p><strong>Importante:</strong> o círculo não é apresentado como EAC ou autorização específica do CIM. Ele representa a referência horizontal geral; a metade vermelha é a restrição operacional local de não voar atrás dos pilotos.</p>
-        <p><strong>13 e 31:</strong> são marcações indicativas. O corpo da pista não é desenhado sobre o mapa enquanto não tivermos as coordenadas exatas das duas extremidades.</p>
+        <p><strong>13 e 31:</strong> são marcações calculadas a partir do centro informado, dos 230 m de comprimento e do rumo nominal adotado. Não são coordenadas levantadas em campo.</p>
+        <p><strong>Conferência pelas fotos aéreas do CIM:</strong> os registros confirmam o lado da área de apoio/pilotos e o setor livre voltado para a Lagoa da Precabura, coerentes com o mapa. As fotos são referência visual, não ortofotos georreferenciadas; por isso não são usadas para inventar limites ou coordenadas.</p>
       </div>
     </section>
 
@@ -67,7 +68,7 @@
     <section class="runway-section-heading">
       <p class="eyebrow">Pista do CIM</p>
       <h2>13 / 31 · 230 m × 12 m</h2>
-      <p>As cabeceiras 13 e 31 permanecem identificadas operacionalmente. No mapa, sua posição é apenas indicativa até termos as coordenadas exatas de cada extremidade da pista.</p>
+      <p>O eixo esquemático usa o rumo verdadeiro aproximado de 109,8° / 289,8°, derivado da designação magnética 13/31 e da declinação regional. As fotos aéreas são compatíveis com essa orientação, mas a precisão topográfica das extremidades ainda depende de coordenadas medidas.</p>
     </section>
 
     <section class="art-card">
@@ -104,11 +105,11 @@
     <footer>
       <p>Pista atual do CIM: <strong>230 m × 12 m</strong>, cabeceiras 13/31. Centro: <strong>-3.845481, -38.460447</strong>.</p>
       <p>Vento: estimativa de modelo Open-Meteo para as coordenadas do CIM; o horário de validade é exibido e dados antigos são sinalizados.</p>
-      <p>Tráfego aéreo: Airplanes.live em consulta direta pelo navegador, com backup adsb.lol armazenado no GitHub. Posições antigas são ocultadas; a cobertura depende da recepção ADS-B/MLAT e não substitui informação aeronáutica oficial.</p>
+      <p>Tráfego aéreo: adsb.lol como fonte direta primária, Airplanes.live como redundância direta e snapshot adsb.lol no GitHub como último recurso. A idade total de cada posição é verificada antes de exibi-la. Cobertura ADS-B/MLAT não equivale a todo o tráfego e não substitui informação aeronáutica oficial.</p>
     </footer>
   </main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="pista.js?v=20260831-1545"></script>
-  <script src="traffic.js?v=20260831-1628"></script>
+  <script src="traffic.js?v=20260831-1645"></script>
 </body>
 </html>
