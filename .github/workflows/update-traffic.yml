@@ -1,19 +1,26 @@
 name: Atualizar tráfego aéreo CIM
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/update-traffic.yml'
+  schedule:
+    - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: trafego-aereo-cim
+  cancel-in-progress: true
+
 jobs:
   update-traffic:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
