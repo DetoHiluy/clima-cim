@@ -1,1 +1,0 @@
-:root{--orange:#f28c28}.status-card.challenging{border-left-color:var(--orange)}.status-card.challenging .status-dot{background:var(--orange);box-shadow:0 0 0 10px rgba(242,140,40,.13)}.runway-wind-line{align-items:center;flex-wrap:wrap}.runway-wind-line>strong{white-space:nowrap}@media(max-width:620px){.runway-wind-line{gap:7px}.runway-wind-line>strong{white-space:normal}}
