@@ -19,6 +19,9 @@ function initMap(){
  let fallbackActivated=false;carto.on('tileerror',()=>{if(!fallbackActivated){fallbackActivated=true;map.removeLayer(carto);fallback.addTo(map)}});
  function off(origin,forward,right){let p=destination(origin[0],origin[1],CIM.runwayTrueHeading,forward);return destination(p[0],p[1],CIM.runwayTrueHeading+90,right)}
  function badge(text,bg='#0b1d2b',fg='#fff'){return L.divIcon({className:'map-badge-wrap',html:`<div class="map-badge" style="background:${bg};color:${fg}">${text}</div>`,iconSize:[46,32],iconAnchor:[23,16]})}
+ // Contorno apenas de referência da área de 14.000 m² levantada pela UFC; não representa divisa jurídica.
+ const ufcReferenceArea=[off(center,-130,-20),off(center,130,-18),off(center,135,25),off(center,60,31),off(center,-30,32),off(center,-135,26)];
+ L.polygon(ufcReferenceArea,{color:'#64748b',weight:2,opacity:.55,dashArray:'5 7',fillColor:'#94a3b8',fillOpacity:.025,interactive:false}).addTo(map);
  // Sem desenho do corpo da pista: apenas referências indicativas das cabeceiras.
  const halfL=CIM.runwayLength/2;
  const th13=off(center,-halfL,0),th31=off(center,halfL,0);
