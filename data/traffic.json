@@ -1,6 +1,22 @@
 {
   "source": "adsb.lol",
   "radius_nm": 15,
-  "fetched_at": null,
-  "aircraft": []
+  "fetched_at": "2026-08-31T14:48:00.139089Z",
+  "aircraft": [
+    {
+      "hex": "e497ae",
+      "flight": "AZU4712",
+      "registration": "PR-YJE",
+      "type": "A21N",
+      "lat": -3.762955,
+      "lon": -38.582355,
+      "alt_baro": 825,
+      "alt_geom": 900,
+      "gs": 119.8,
+      "track": 104.5,
+      "squawk": "4176",
+      "seen": 0.1,
+      "seen_pos": 0.061
+    }
+  ]
 }
