@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#06131f">
-  <meta name="description" content="Pista 13/31 e espaço de voo regulamentar do Centro Integrado de Modelismo — CIM.">
+  <meta name="description" content="Pista 13/31 e espaço de voo do Centro Integrado de Modelismo — CIM.">
   <title>CIM · Pista e espaço de voo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="pista.css?v=20260831-1102">
@@ -28,7 +28,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Operação do campo</p>
         <h1>Pista <span>+</span> espaço de voo</h1>
-        <p class="hero-sub">Pista 13/31 com 230 × 12 m e representação do espaço de voo conforme a regra geral vigente do DECEA: 300 m horizontais a partir do piloto, 60 m / 200 ft AGL e VLOS.</p>
+        <p class="hero-sub">Pista 13/31 com 230 × 12 m. A referência recreativa geral adotada no mapa é de até 300 m horizontais a partir do piloto, 60 m / 200 ft AGL e VLOS; a regra de não voar atrás dos pilotos é operacional do CIM.</p>
       </div>
       <div id="operation-pill" class="operation-pill loading"><span></span><strong>Consultando vento</strong></div>
     </section>
@@ -36,10 +36,11 @@
     <section class="airspace-panel airspace-feature">
       <div class="section-heading">
         <div><p class="eyebrow">Espaço de voo</p><h2>Área de operação do CIM</h2></div>
-        <span>DECEA + regra local do CIM</span>
+        <span>referência geral + regra local do CIM</span>
       </div>
       <div class="airspace-summary">
-        <article><strong>300 m</strong><span>limite horizontal geral medido a partir do piloto</span></article>
+        <article><strong>300 m</strong><span>raio horizontal geral medido a partir do piloto</span></article>
+        <article><strong>600 m</strong><span>diâmetro do círculo correspondente</span></article>
         <article><strong>60 m</strong><span>200 ft AGL · altura máxima geral</span></article>
         <article><strong>VLOS</strong><span>contato visual direto obrigatório</span></article>
       </div>
@@ -51,14 +52,16 @@
       </div>
       <div id="flight-map" class="flight-map"></div>
       <div class="airspace-note">
-        <p><strong>Círculo tracejado azul:</strong> limite horizontal geral de 300 m medido a partir do piloto. A metade azul representa o setor de voo voltado para a lagoa.</p>
-        <p><strong>13 e 31:</strong> são apenas marcações indicativas das cabeceiras. O corpo da pista não é desenhado sobre o mapa enquanto não tivermos as coordenadas exatas das duas extremidades.</p>
+        <p><strong>Círculo tracejado azul:</strong> referência horizontal geral com <strong>raio de 300 m a partir do piloto</strong>; portanto, o círculo completo tem <strong>600 m de diâmetro</strong>. A linha marcada “RAIO 300 m” permite conferir visualmente a escala no mapa.</p>
+        <p><strong>Posição do piloto:</strong> ainda é aproximada, calculada geometricamente a partir do centro da pista. Assim que tivermos a coordenada medida da linha real dos pilotos, ela deve substituir essa referência.</p>
+        <p><strong>Importante:</strong> o círculo não é apresentado como EAC ou autorização específica do CIM. Ele representa a referência horizontal geral; a metade vermelha é a restrição operacional local de não voar atrás dos pilotos.</p>
+        <p><strong>13 e 31:</strong> são marcações indicativas. O corpo da pista não é desenhado sobre o mapa enquanto não tivermos as coordenadas exatas das duas extremidades.</p>
       </div>
     </section>
 
     <section class="profile-panel">
-      <div><p class="eyebrow">Perfil vertical</p><h2>60 m / 200 ft AGL</h2><p>Para a operação recreativa, esta view adota o limite geral mais restritivo publicado pelo DECEA. A referência horizontal é de 300 m a partir do piloto, mantendo VLOS.</p></div>
-      <div class="height-graphic"><div class="height-line"><strong>60 m · 200 ft</strong><span>limite geral DECEA</span></div><div class="ground-line">SOLO / PISTA · AGL 0</div></div>
+      <div><p class="eyebrow">Perfil vertical</p><h2>60 m / 200 ft AGL</h2><p>Para a operação recreativa, esta view utiliza a referência geral de 300 m horizontais a partir do piloto e 60 m / 200 ft AGL, mantendo VLOS.</p></div>
+      <div class="height-graphic"><div class="height-line"><strong>60 m · 200 ft</strong><span>referência vertical geral</span></div><div class="ground-line">SOLO / PISTA · AGL 0</div></div>
     </section>
 
     <section class="runway-section-heading">
@@ -86,8 +89,8 @@
 
     <section class="brief-grid">
       <article class="panel primary"><p class="eyebrow">Pista recomendada</p><strong id="preferred-runway" class="big-value">--</strong><p id="runway-reason">Calculando a melhor cabeceira para o vento atual.</p></article>
-      <article class="panel"><span>Vento atual</span><strong id="wind">--</strong><small id="wind-dir">--</small></article>
-      <article class="panel"><span>Rajadas</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
+      <article class="panel"><span>Vento atual · modelo</span><strong id="wind">--</strong><small id="wind-dir">--</small></article>
+      <article class="panel"><span>Rajadas · modelo</span><strong id="gust">--</strong><small id="gust-delta">--</small></article>
       <article class="panel"><span>Componente de proa</span><strong id="headwind">--</strong><small id="headwind-label">--</small></article>
       <article class="panel"><span>Componente de través</span><strong id="crosswind">--</strong><small id="crosswind-side">--</small></article>
       <article class="panel"><span>Ângulo relativo</span><strong id="relative-angle">--°</strong><small id="angle-label">--</small></article>
@@ -100,13 +103,12 @@
 
     <footer>
       <p>Pista atual do CIM: <strong>230 m × 12 m</strong>, cabeceiras 13/31. Centro: <strong>-3.845481, -38.460447</strong>.</p>
-      <p>Espaço de voo: referência geral DECEA — 300 m horizontais, 60 m / 200 ft AGL e VLOS. A restrição atrás dos pilotos é regra operacional local do CIM.</p>
+      <p>Vento: estimativa de modelo Open-Meteo para as coordenadas do CIM; o horário de validade é exibido e dados antigos são sinalizados.</p>
       <p>Tráfego aéreo: adsb.lol · dados abertos ODbL. A cobertura depende de recepção ADS-B/MLAT e não substitui informação aeronáutica oficial.</p>
     </footer>
   </main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="pista.js?v=20260831-1118"></script>
-  <script src="pista-enhancements.js?v=20260831-1208"></script>
-  <script src="traffic.js?v=20260831-1155"></script>
+  <script src="pista.js?v=20260831-1545"></script>
+  <script src="traffic.js?v=20260831-1545"></script>
 </body>
 </html>
