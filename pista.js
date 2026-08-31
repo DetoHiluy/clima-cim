@@ -17,13 +17,13 @@ function initMap(){
  const carto=L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,{subdomains:'abcd',maxZoom:20,attribution:'&copy; OpenStreetMap contributors, &copy; CARTO'}).addTo(map);
  const fallback=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'});
  let fallbackActivated=false;carto.on('tileerror',()=>{if(!fallbackActivated){fallbackActivated=true;map.removeLayer(carto);fallback.addTo(map)}});
- const halfL=CIM.runwayLength/2,halfW=CIM.runwayWidth/2;
  function off(origin,forward,right){let p=destination(origin[0],origin[1],CIM.runwayTrueHeading,forward);return destination(p[0],p[1],CIM.runwayTrueHeading+90,right)}
- const runway=[off(center,-halfL,-halfW),off(center,halfL,-halfW),off(center,halfL,halfW),off(center,-halfL,halfW)];
- L.polygon(runway,{color:'#172033',weight:3,fillColor:'#475569',fillOpacity:.88}).addTo(map).bindTooltip('PISTA 13/31 · 230 × 12 m');
+ function badge(text,bg='#0b1d2b',fg='#fff'){return L.divIcon({className:'map-badge-wrap',html:`<div class="map-badge" style="background:${bg};color:${fg}">${text}</div>`,iconSize:[46,32],iconAnchor:[23,16]})}
+ // Sem desenho do corpo da pista: apenas referências indicativas das cabeceiras.
+ const halfL=CIM.runwayLength/2;
  const th13=off(center,-halfL,0),th31=off(center,halfL,0);
- function badge(text,bg='#0b1d2b',fg='#fff'){return L.divIcon({className:'map-badge-wrap',html:`<div class="map-badge" style="background:${bg};color:${fg}">${text}</div>`,iconSize:[70,28],iconAnchor:[35,14]})}
- L.marker(th13,{icon:badge('PISTA 13')}).addTo(map);L.marker(th31,{icon:badge('PISTA 31')}).addTo(map);
+ L.marker(th13,{icon:badge('13')}).addTo(map).bindTooltip('Cabeceira 13 · posição indicativa');
+ L.marker(th31,{icon:badge('31')}).addTo(map).bindTooltip('Cabeceira 31 · posição indicativa');
  const pilot=off(center,0,CIM.pilotOffset);
  const pilotLineA=destination(pilot[0],pilot[1],CIM.runwayTrueHeading,340),pilotLineB=destination(pilot[0],pilot[1],CIM.runwayTrueHeading+180,340);
  L.polyline([pilotLineA,pilotLineB],{color:'#f4b942',weight:4,dashArray:'10 7'}).addTo(map).bindTooltip('LINHA DOS PILOTOS');
@@ -31,7 +31,6 @@ function initMap(){
  L.marker(pilot,{icon:badge('PILOTO','#f4b942','#07131f')}).addTo(map);
  const outer=L.circle(pilot,{radius:CIM.regRadius,color:'#2563eb',weight:3,dashArray:'11 8',fill:false}).addTo(map).bindTooltip('LIMITE DECEA · 300 m DO PILOTO');
  function sector(startBearing,endBearing){const pts=[pilot];for(let b=startBearing;b<=endBearing;b+=5)pts.push(destination(pilot[0],pilot[1],normalize(b),CIM.regRadius));pts.push(destination(pilot[0],pilot[1],normalize(endBearing),CIM.regRadius));return pts}
- // Frente de voo: lado da lagoa (NNE da linha dos pilotos, perpendicular ao eixo da pista).
  const allowedStart=CIM.runwayTrueHeading+180,allowedEnd=CIM.runwayTrueHeading+360;
  const forbiddenStart=CIM.runwayTrueHeading,forbiddenEnd=CIM.runwayTrueHeading+180;
  L.polygon(sector(allowedStart,allowedEnd),{color:'#2563eb',weight:1,fillColor:'#3b82f6',fillOpacity:.14}).addTo(map).bindTooltip('SETOR DE VOO · lado da lagoa');
