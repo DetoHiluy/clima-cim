@@ -1,37 +1,22 @@
 {
   "source": "adsb.lol",
   "radius_nm": 15,
-  "fetched_at": "2026-08-31T22:45:33.714581Z",
+  "fetched_at": "2026-09-01T12:32:31.894029Z",
   "aircraft": [
     {
-      "hex": "e48e46",
-      "flight": "TAM4698",
-      "registration": "PR-TYA",
-      "type": "A320",
-      "lat": -3.777679,
-      "lon": -38.538311,
+      "hex": "e49697",
+      "flight": "TAM3467",
+      "registration": "PR-XBG",
+      "type": "A20N",
+      "lat": -3.777702,
+      "lon": -38.533409,
       "alt_baro": "ground",
       "alt_geom": null,
-      "gs": 9.2,
+      "gs": 14.8,
       "track": null,
-      "squawk": "5032",
-      "seen": 2.0,
-      "seen_pos": 1.985
-    },
-    {
-      "hex": "e4a37d",
-      "flight": "PSFIL",
-      "registration": "PS-FIL",
-      "type": "E55P",
-      "lat": -3.773254,
-      "lon": -38.536105,
-      "alt_baro": "ground",
-      "alt_geom": null,
-      "gs": 0.0,
-      "track": null,
-      "squawk": "5004",
-      "seen": 1.5,
-      "seen_pos": 2.233
+      "squawk": "4476",
+      "seen": 0.2,
+      "seen_pos": 0.157
     }
   ]
 }
