@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - '.github/workflows/update-metar.yml'
-      - 'reliability.js'
+      - 'app.js'
   schedule:
     - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
