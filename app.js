@@ -9,7 +9,9 @@ const CIM={
   timezone:'America/Fortaleza'
 };
 
-const RAW_METAR='https://raw.githubusercontent.com/DetoHiluy/clima-cim/main/data/metar.json';
+const METAR_PRIMARY='https://metars.eu/api/metars/SBFZ';
+const METAR_SECONDARY='https://metar.vatsim.net/SBFZ?format=json';
+const METAR_MAX_AGE_MIN=90;
 const weatherMap={0:['☀️','Céu limpo'],1:['🌤️','Predominantemente limpo'],2:['⛅','Parcialmente nublado'],3:['☁️','Nublado'],45:['🌫️','Neblina'],48:['🌫️','Neblina'],51:['🌦️','Garoa fraca'],53:['🌦️','Garoa'],55:['🌧️','Garoa forte'],61:['🌦️','Chuva fraca'],63:['🌧️','Chuva'],65:['🌧️','Chuva forte'],80:['🌦️','Pancadas fracas'],81:['🌧️','Pancadas'],82:['⛈️','Pancadas fortes'],95:['⛈️','Trovoadas'],96:['⛈️','Trovoadas com granizo'],99:['⛈️','Trovoadas fortes']};
 
 const $=s=>document.querySelector(s);
@@ -106,6 +108,12 @@ function nextHourlyIndex(data,modelDate){
   return -1;
 }
 
+function nearestHourlyIndex(data,modelDate){
+  const h=data.hourly,offset=data.utc_offset_seconds||0;let best=-1,bestDelta=Infinity;
+  for(let i=0;i<h.time.length;i++){const d=openMeteoDate(h.time[i],offset);if(!d)continue;const delta=Math.abs(d.getTime()-modelDate.getTime());if(delta<bestDelta){best=i;bestDelta=delta}}
+  return best;
+}
+
 function render(data){
   const c=data.current,d=data.daily,h=data.hourly,offset=data.utc_offset_seconds||0;
   const modelDate=openMeteoDate(c.time,offset)||new Date();
@@ -132,7 +140,7 @@ function render(data){
   const rw=analysis.runway;
   $('#preferred-runway').textContent=`Preferência: pista ${rw.name}`;
   $('#headwind-component').textContent=`${Math.abs(rw.head).toFixed(1)} km/h`;$('#headwind-label').textContent=rw.head>=0?'vento de proa':'vento de cauda';
-  $('#crosswind-component').textContent=`${Math.abs(rw.cross).toFixed(1)} km/h`;$('#crosswind-side').textContent=Math.abs(rw.cross)<0.5?'praticamente sem través':rw.cross>0?'da esquerda para a direita':'da direita para a esquerda';
+  $('#crosswind-component').textContent=`${Math.abs(rw.cross).toFixed(1)} km/h`;$('#crosswind-side').textContent=Math.abs(rw.cross)<0.5?'praticamente sem través':rw.cross>0?'da direita para a esquerda':'da esquerda para a direita';
   $('#wind-angle').textContent=`${Math.abs(rw.delta).toFixed(0)}°`;$('#wind-angle-label').textContent=Math.abs(rw.delta)<15?'quase alinhado':Math.abs(rw.delta)<45?'parcialmente cruzado':'predominantemente de través';
   $('#runway-summary').textContent=`Com o vento do intervalo atual, a pista ${rw.name} oferece o melhor componente de proa.`;
   renderRunwayWindRelative(rw,c);
@@ -144,7 +152,8 @@ function render(data){
   const nextPop=nextIndex>=0?Number(h.precipitation_probability?.[nextIndex]):null;
   $('#rain-probability').textContent=`${precip.toFixed(1)} mm`;
   $('#rain-total').textContent=Number.isFinite(nextPop)?`Próxima hora: ${Math.round(nextPop)}% de probabilidade`:'Probabilidade da próxima hora indisponível';
-  $('#uv-index').textContent=Math.round(d.uv_index_max[0]||0);$('#uv-label').textContent=uvClass(d.uv_index_max[0]||0);
+  const uvIndex=nearestHourlyIndex(data,modelDate);const uv=uvIndex>=0?Number(h.uv_index?.[uvIndex]):NaN;
+  $('#uv-index').textContent=Number.isFinite(uv)?uv.toFixed(1):'--';$('#uv-label').textContent=Number.isFinite(uv)?uvClass(uv):'indisponível';
   $('#sunset').textContent=formatTime(openMeteoDate(d.sunset[0],offset));$('#sunrise').textContent=`Nascer ${formatTime(openMeteoDate(d.sunrise[0],offset))}`;
   $('#updated-at').textContent=`Modelo válido ${formatTime(modelDate)} · consulta ${formatTime(new Date())}`;
 
@@ -160,40 +169,64 @@ function render(data){
   $('#daily-forecast').innerHTML=d.time.map((day,i)=>{const w=weather(d.weather_code[i]);return`<article class="forecast-item"><strong>${i===0?'Hoje':formatDay(day)}</strong><span class="icon">${w[0]}</span><strong>${Math.round(d.temperature_2m_min[i])}° / ${Math.round(d.temperature_2m_max[i])}°</strong><small>Prob. máx. chuva ${Math.round(d.precipitation_probability_max[i]||0)}%<br>Raj. máx. ${Math.round(d.wind_gusts_10m_max[i])} km/h</small></article>`}).join('');
 }
 
-function metarTemp(v){if(v==null)return'--';return`${Math.round(v)}°C`}
+function metarTemp(v){if(v==null||!Number.isFinite(Number(v)))return'--';return`${Math.round(Number(v))}°C`}
 function metarVisibility(m){
   const raw=m.rawOb||m.raw_text||'';
   const match=raw.match(/\s(9999|\d{4})\s/);
   if(match){const n=Number(match[1]);return n===9999?'≥ 10 km':`${(n/1000).toFixed(n%1000?1:0)} km`}
-  return m.visib==null?'--':String(m.visib);
+  if(Number.isFinite(Number(m.visib))){const n=Number(m.visib);return n>=1000?`${(n/1000).toFixed(n%1000?1:0)} km`:String(n)}
+  return'--';
+}
+function nearestMetarDate(value){
+  if(value==null)return null;
+  if(typeof value==='number'){const d=new Date(value>1e12?value:value*1000);return Number.isNaN(d.getTime())?null:d}
+  const text=String(value).trim();const six=text.match(/^(\d{2})(\d{2})(\d{2})Z$/);
+  if(six){const now=new Date(),day=Number(six[1]),hour=Number(six[2]),minute=Number(six[3]);let d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),day,hour,minute));if(d-now>3*864e5)d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-1,day,hour,minute));else if(now-d>28*864e5)d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()+1,day,hour,minute));return d}
+  const d=new Date(text);return Number.isNaN(d.getTime())?null:d;
+}
+function rawMetarDate(raw){const m=String(raw||'').match(/(?:^|\s)(\d{6}Z)(?:\s|$)/);return m?nearestMetarDate(m[1]):null}
+function metarNumber(token){if(token==null)return null;const n=Number(String(token).replace(/^M/i,'-'));return Number.isFinite(n)?n:null}
+async function fetchJson(url,timeoutMs=7000){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{const r=await fetch(`${url}${url.includes('?')?'&':'?'}_=${Date.now()}`,{cache:'no-store',credentials:'omit',headers:{Accept:'application/json'},signal:controller.signal});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json()}finally{clearTimeout(timer)}
+}
+function normalizeMetarsEu(payload){
+  const r=Array.isArray(payload)?payload[0]:(Array.isArray(payload?.metars)?payload.metars[0]:(Array.isArray(payload?.data)?payload.data[0]:payload));
+  if(!r||typeof r!=='object')throw new Error('resposta vazia');
+  const raw=r.rawText||r.raw||r.rawOb||r.raw_text;if(!raw)throw new Error('sem METAR bruto');
+  const obs=nearestMetarDate(r.timestamp||r.observedAt||r.observationTime||r.obsTime||r.reportTime)||rawMetarDate(raw);if(ageMinutes(obs)>METAR_MAX_AGE_MIN)throw new Error('observação antiga');
+  const wind=r.wind||{},temp=r.temperature||{};
+  return{source:'metars.eu · NOAA/AWC',fetched_at:new Date().toISOString(),metar:{icaoId:'SBFZ',rawOb:raw,obsTime:obs?Math.floor(obs.getTime()/1000):null,reportTime:obs?.toISOString()||null,wdir:wind.direction??r.wdir??null,wspd:wind.speed??r.wspd??null,wgst:wind.gust??r.wgst??null,temp:temp.temp??r.temp??null,dewp:temp.dewPoint??r.dewp??null,altim:r.qnh??r.altimeter?.value??r.altim??null,visib:r.visibility?.meters??r.visib??null}};
+}
+function normalizeVatsim(payload){
+  const rows=Array.isArray(payload)?payload:(Array.isArray(payload?.data)?payload.data:[]);const r=rows.find(x=>String(x?.id||x?.icao||'').toUpperCase()==='SBFZ')||rows[0];if(!r)throw new Error('resposta vazia');
+  let raw=String(r.metar||r.raw||r.rawText||'').trim();if(!raw)throw new Error('sem METAR bruto');if(!/\bSBFZ\b/.test(raw))raw=`METAR SBFZ ${raw}`;
+  const obs=rawMetarDate(raw);if(ageMinutes(obs)>METAR_MAX_AGE_MIN)throw new Error('observação antiga');
+  const wind=raw.match(/(?:^|\s)(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT(?:\s|$)/),td=raw.match(/(?:^|\s)(M?\d{2})\/(M?\d{2})(?:\s|$)/),q=raw.match(/(?:^|\s)Q(\d{4})(?:\s|$)/);
+  return{source:'VATSIM METAR',fetched_at:new Date().toISOString(),metar:{icaoId:'SBFZ',rawOb:raw,obsTime:obs?Math.floor(obs.getTime()/1000):null,reportTime:obs?.toISOString()||null,wdir:wind&&wind[1]!=='VRB'?Number(wind[1]):null,wspd:wind?Number(wind[2]):null,wgst:wind&&wind[3]?Number(wind[3]):null,temp:td?metarNumber(td[1]):null,dewp:td?metarNumber(td[2]):null,altim:q?Number(q[1]):null,visib:null}};
 }
 async function getMetarPayload(){
-  const urls=[`${RAW_METAR}?t=${Date.now()}`,`data/metar.json?t=${Date.now()}`];let lastError;
-  for(const url of urls){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json()}catch(e){lastError=e}}
-  throw lastError||new Error('METAR indisponível');
+  const errors=[];
+  try{return normalizeMetarsEu(await fetchJson(METAR_PRIMARY))}catch(e){errors.push(`metars.eu: ${e?.message||e}`)}
+  try{return normalizeVatsim(await fetchJson(METAR_SECONDARY))}catch(e){errors.push(`VATSIM: ${e?.message||e}`)}
+  throw new Error(errors.join(' · '));
 }
 async function loadMetar(){
   try{
-    const payload=await getMetarPayload();const m=payload?.metar;if(!m)throw new Error('METAR vazio');
-    $('#metar-raw').textContent=m.rawOb||m.raw_text||'METAR indisponível';
-    let obs=null;if(m.obsTime!=null)obs=typeof m.obsTime==='number'?new Date(m.obsTime*1000):new Date(m.obsTime);else if(m.reportTime)obs=new Date(m.reportTime);
-    const fetched=payload.fetched_at?new Date(payload.fetched_at):null,obsAge=ageMinutes(obs),feedAge=ageMinutes(fetched);
-    let state=`observado ${formatTime(obs)} · coleta ${formatTime(fetched)}`;
-    if(obsAge>90)state=`⚠ METAR antigo · obs. ${formatTime(obs)} · ${ageText(obsAge)}`;
-    else if(feedAge>45)state=`⚠ feed atrasado · obs. ${formatTime(obs)} · coleta há ${ageText(feedAge)}`;
-    $('#metar-age').textContent=state;
-    const windDir=m.wdir==null?'VRB':`${Math.round(m.wdir)}°`,windKt=m.wspd==null?'--':Math.round(m.wspd),gustKt=m.wgst==null?null:Math.round(m.wgst),alt=m.altim==null?'--':`${Math.round(m.altim)} hPa`;
+    const payload=await getMetarPayload(),m=payload.metar;if(!m)throw new Error('METAR vazio');
+    const obs=m.obsTime!=null?nearestMetarDate(m.obsTime):(nearestMetarDate(m.reportTime)||rawMetarDate(m.rawOb));const obsAge=ageMinutes(obs);if(obsAge>METAR_MAX_AGE_MIN)throw new Error('METAR antigo');
+    $('#metar-raw').textContent=m.rawOb||'METAR indisponível';
+    $('#metar-age').textContent=`${payload.source} · observado ${formatTime(obs)} · ${ageText(obsAge)}`;
+    const windDir=m.wdir==null?'VRB':`${Math.round(Number(m.wdir))}°`,windKt=m.wspd==null?'--':Math.round(Number(m.wspd)),gustKt=m.wgst==null?null:Math.round(Number(m.wgst)),alt=m.altim==null?'--':`${Math.round(Number(m.altim))} hPa`;
     $('#metar-details').innerHTML=`<div><dt>Vento</dt><dd>${windDir} · ${windKt} kt${gustKt?` · G${gustKt}`:''}</dd></div><div><dt>Visibilidade</dt><dd>${metarVisibility(m)}</dd></div><div><dt>Temperatura</dt><dd>${metarTemp(m.temp)} · orvalho ${metarTemp(m.dewp)}</dd></div><div><dt>Pressão</dt><dd>${alt}</dd></div>`;
   }catch(e){
-    $('#metar-age').textContent='feed indisponível';
-    $('#metar-raw').textContent='Não foi possível obter uma observação METAR atualizada.';
-    $('#metar-details').innerHTML='';
+    $('#metar-age').textContent='METAR atual indisponível';$('#metar-raw').textContent='Nenhuma das fontes públicas retornou uma observação SBFZ válida e recente.';$('#metar-details').innerHTML='';
   }
 }
 
 async function loadWeather(){
   const current=['temperature_2m','relative_humidity_2m','dew_point_2m','apparent_temperature','precipitation','rain','showers','weather_code','cloud_cover','surface_pressure','wind_speed_10m','wind_direction_10m','wind_gusts_10m','visibility'];
-  const hourly=['temperature_2m','precipitation_probability','precipitation','weather_code','visibility','wind_speed_10m','wind_direction_10m','wind_gusts_10m'];
+  const hourly=['temperature_2m','precipitation_probability','precipitation','weather_code','visibility','wind_speed_10m','wind_direction_10m','wind_gusts_10m','uv_index'];
   const daily=['weather_code','temperature_2m_max','temperature_2m_min','precipitation_probability_max','precipitation_sum','wind_gusts_10m_max','uv_index_max','sunrise','sunset'];
   const params=new URLSearchParams({latitude:CIM.lat,longitude:CIM.lon,timezone:CIM.timezone,forecast_days:'7',current:current.join(','),hourly:hourly.join(','),daily:daily.join(','),wind_speed_unit:'kmh',precipitation_unit:'mm'});
   try{
@@ -211,5 +244,5 @@ function weatherWatchdog(){
 updateClock();setInterval(updateClock,1000);
 loadWeather();loadMetar();
 setInterval(loadWeather,5*60*1000);
-setInterval(loadMetar,5*60*1000);
+setInterval(loadMetar,2*60*1000);
 setInterval(weatherWatchdog,60*1000);
