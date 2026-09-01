@@ -1,22 +1,67 @@
 {
   "source": "adsb.lol",
   "radius_nm": 15,
-  "fetched_at": "2026-09-01T12:32:31.894029Z",
+  "fetched_at": "2026-09-01T16:09:49.628871Z",
   "aircraft": [
     {
-      "hex": "e49697",
-      "flight": "TAM3467",
-      "registration": "PR-XBG",
-      "type": "A20N",
-      "lat": -3.777702,
-      "lon": -38.533409,
+      "hex": "e49c05",
+      "flight": "TAM3520",
+      "registration": "PS-LBF",
+      "type": "A21N",
+      "lat": -3.745743,
+      "lon": -38.64683,
+      "alt_baro": 2100,
+      "alt_geom": 2225,
+      "gs": 140.0,
+      "track": 105.33,
+      "squawk": "5206",
+      "seen": 0.6,
+      "seen_pos": 0.559
+    },
+    {
+      "hex": "e497ae",
+      "flight": "AZU4669",
+      "registration": "PR-YJE",
+      "type": "A21N",
+      "lat": -3.774106,
+      "lon": -38.54513,
       "alt_baro": "ground",
       "alt_geom": null,
-      "gs": 14.8,
+      "gs": 7.8,
       "track": null,
-      "squawk": "4476",
+      "squawk": "5265",
+      "seen": 0.3,
+      "seen_pos": 0.342
+    },
+    {
+      "hex": "e49247",
+      "flight": "TAM3509",
+      "registration": "PT-XPN",
+      "type": "A321",
+      "lat": -3.776482,
+      "lon": -38.531939,
+      "alt_baro": "ground",
+      "alt_geom": 50,
+      "gs": 83.0,
+      "track": 104.06,
+      "squawk": null,
+      "seen": 0.3,
+      "seen_pos": 0.342
+    },
+    {
+      "hex": "e485cd",
+      "flight": "GLO2067",
+      "registration": "PR-GUC",
+      "type": "B738",
+      "lat": -3.833251,
+      "lon": -38.460341,
+      "alt_baro": 2900,
+      "alt_geom": 3050,
+      "gs": 253.4,
+      "track": 191.84,
+      "squawk": null,
       "seen": 0.2,
-      "seen_pos": 0.157
+      "seen_pos": 0.178
     }
   ]
 }
