@@ -1,39 +1,81 @@
-const CIM={lat:-3.8455,lon:-38.4596,runwayHeading:130,runwayLength:230,runwayWidth:12,pilotOffset:38,regRadius:300};
+const $=s=>document.querySelector(s);
 
-function destination(lat,lon,bearing,distance){const R=6378137,δ=distance/R,θ=bearing*Math.PI/180,φ1=lat*Math.PI/180,λ1=lon*Math.PI/180;const φ2=Math.asin(Math.sin(φ1)*Math.cos(δ)+Math.cos(φ1)*Math.sin(δ)*Math.cos(θ));const λ2=λ1+Math.atan2(Math.sin(θ)*Math.sin(δ)*Math.cos(φ1),Math.cos(δ)-Math.sin(φ1)*Math.sin(φ2));return[φ2*180/Math.PI,λ2*180/Math.PI]}
-function offsetPoint(origin,forward,right){let p=destination(origin[0],origin[1],CIM.runwayHeading,forward);p=destination(p[0],p[1],CIM.runwayHeading+90,right);return p}
+function formatDateBR(iso){
+  if(!iso)return '--';
+  const d=new Date(`${iso}T12:00:00-03:00`);
+  if(Number.isNaN(d.getTime()))return iso;
+  return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d);
+}
 
-const map=L.map('flight-map',{zoomControl:true,attributionControl:true}).setView([CIM.lat,CIM.lon],16);
-const street=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,attribution:'© OpenStreetMap contributors © CARTO'}).addTo(map);
-const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'});
-L.control.layers({'Mapa claro':street,'Satélite':satellite},null,{collapsed:false}).addTo(map);
+function daysUntil(iso){
+  if(!iso)return null;
+  const target=new Date(`${iso}T12:00:00-03:00`);
+  if(Number.isNaN(target.getTime()))return null;
+  return Math.round((target.getTime()-Date.now())/86400000);
+}
 
-const center=[CIM.lat,CIM.lon];
-const halfL=CIM.runwayLength/2,halfW=CIM.runwayWidth/2;
-const runway=[offsetPoint(center,-halfL,-halfW),offsetPoint(center,halfL,-halfW),offsetPoint(center,halfL,halfW),offsetPoint(center,-halfL,halfW)];
-L.polygon(runway,{color:'#17212a',weight:3,fillColor:'#5d6770',fillOpacity:.8}).addTo(map).bindTooltip('Pista 13/31 · 230 × 12 m',{className:'flight-label'});
+function confiancaBadge(nivel){
+  if(nivel==='primaria')return '<span class="confidence primaria" title="Conferido diretamente na fonte oficial (ANAC, DECEA etc.)">fonte primária</span>';
+  return '<span class="confidence secundaria" title="Resumo apoiado em cobertura jornalística/especializada porque a fonte oficial não pôde ser lida diretamente na última verificação. Confira o link oficial antes de decidir algo com base nisso.">fonte secundária · confira o link oficial</span>';
+}
 
-const rwy13=offsetPoint(center,-halfL,0),rwy31=offsetPoint(center,halfL,0);
-function runwayIcon(label){return L.divIcon({className:'',html:`<div style="background:#07131e;color:white;border:2px solid white;border-radius:8px;padding:4px 7px;font-weight:900">${label}</div>`,iconSize:[34,28],iconAnchor:[17,14]})}
-L.marker(rwy13,{icon:runwayIcon('13')}).addTo(map);
-L.marker(rwy31,{icon:runwayIcon('31')}).addTo(map);
+function normaCard(n){
+  const dias=daysUntil(n.reverificar_ate);
+  const vencida=dias!==null&&dias<0;
+  const proxima=dias!==null&&dias>=0&&dias<=14;
+  const prazoClass=vencida?'overdue':proxima?'soon':'ok';
+  const prazoText=vencida?`revisão pendente desde ${formatDateBR(n.reverificar_ate)}`:`próxima revisão até ${formatDateBR(n.reverificar_ate)}`;
+  return `<article class="law-card" id="norma-${n.id}">
+    <div class="law-head">
+      <div>
+        <p class="law-org">${n.orgao} · ${n.categoria}</p>
+        <h3>${n.titulo}</h3>
+        <p class="law-id">${n.identificacao}</p>
+      </div>
+      ${confiancaBadge(n.confianca)}
+    </div>
+    <p class="law-summary">${n.resumo}</p>
+    <div class="law-application">
+      <p class="eyebrow">O que isso significa para quem voa no CIM</p>
+      <p>${n.aplicacao_cim}</p>
+    </div>
+    <div class="law-footer">
+      <div class="law-links">
+        <a href="${n.url}" target="_blank" rel="noopener noreferrer">Ver fonte oficial ↗</a>
+        ${n.url_secundaria?`<a href="${n.url_secundaria}" target="_blank" rel="noopener noreferrer">Ver cobertura especializada ↗</a>`:''}
+      </div>
+      <div class="law-meta">
+        <span>${n.vigencia}</span>
+        <span class="review-pill ${prazoClass}">Verificado em ${formatDateBR(n.verificado_em)} · ${prazoText}</span>
+      </div>
+    </div>
+  </article>`;
+}
 
-// Referência preliminar dos pilotos: lado sudoeste da pista, frente de voo para nordeste.
-const pilotCenter=offsetPoint(center,0,-CIM.pilotOffset);
-const pilotLeft=offsetPoint(center,-halfL,-CIM.pilotOffset);
-const pilotRight=offsetPoint(center,halfL,-CIM.pilotOffset);
-L.polyline([pilotLeft,pilotRight],{color:'#f4b942',weight:5,dashArray:'12 8'}).addTo(map).bindTooltip('Linha dos pilotos · referência preliminar',{className:'flight-label'});
-L.marker(pilotCenter,{icon:L.divIcon({className:'',html:'<div style="background:#f4b942;color:#07131e;border-radius:999px;padding:6px 9px;font-weight:950;white-space:nowrap">PILOTO</div>',iconSize:[66,28],iconAnchor:[33,14]})}).addTo(map);
+async function loadLegislacao(){
+  const status=$('#legislacao-status');
+  try{
+    const r=await fetch(`data/legislacao.json?_=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    const normas=Array.isArray(data.normas)?data.normas:[];
+    if(!normas.length)throw new Error('lista vazia');
 
-const regulatory=L.circle(pilotCenter,{radius:CIM.regRadius,color:'#1769aa',weight:3,dashArray:'9 7',fillColor:'#53a8ff',fillOpacity:.12}).addTo(map).bindTooltip('Limite horizontal geral DECEA · 300 m do piloto',{className:'flight-label'});
+    $('#law-grid').innerHTML=normas.map(normaCard).join('');
 
-// Setor local sem voo atrás dos pilotos, indicado separadamente da norma do DECEA.
-const side=300,back=180;
-const localForbidden=[offsetPoint(pilotCenter,-side,0),offsetPoint(pilotCenter,side,0),offsetPoint(pilotCenter,side,-back),offsetPoint(pilotCenter,-side,-back)];
-L.polygon(localForbidden,{color:'#d9534f',weight:2,dashArray:'7 7',fillColor:'#ff6b6b',fillOpacity:.12}).addTo(map).bindTooltip('Regra local CIM · setor sem voo atrás dos pilotos',{className:'flight-label'});
+    const overdue=normas.filter(n=>{const d=daysUntil(n.reverificar_ate);return d!==null&&d<0});
+    if(status){
+      status.textContent=overdue.length
+        ? `Base atualizada em ${formatDateBR(data.atualizado_em)} · ${overdue.length} norma(s) com revisão pendente`
+        : `Base atualizada em ${formatDateBR(data.atualizado_em)} · todas as normas revisadas dentro do prazo`;
+      status.className='section-note'+(overdue.length?' overdue':'');
+    }
+    const method=$('#legislacao-metodo');
+    if(method)method.textContent=data.metodo||'';
+  }catch(e){
+    $('#law-grid').innerHTML='<p class="law-error">Não foi possível carregar a base de legislação agora. Recarregue a página ou consulte diretamente as fontes oficiais: ANAC (anac.gov.br) e DECEA (decea.mil.br).</p>';
+    if(status){status.textContent='Falha ao carregar data/legislacao.json';status.className='section-note overdue'}
+  }
+}
 
-const distanceLabel=offsetPoint(pilotCenter,0,CIM.regRadius);
-L.marker(distanceLabel,{icon:L.divIcon({className:'',html:'<div style="background:white;color:#1769aa;border:1px solid #1769aa;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:900;white-space:nowrap">300 m</div>',iconSize:[60,26],iconAnchor:[30,13]})}).addTo(map);
-
-const bounds=regulatory.getBounds();map.fitBounds(bounds.pad(.12));
-L.control.scale({imperial:false,maxWidth:160}).addTo(map);
+loadLegislacao();
