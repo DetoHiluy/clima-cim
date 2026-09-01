@@ -1,0 +1,84 @@
+name: Lembrete de revisão da legislação
+
+# Este workflow NÃO detecta mudanças de lei automaticamente — isso não existe
+# de forma confiável hoje. O que ele faz é o possível: no dia 1 de cada mês,
+# olha data/legislacao.json e abre (ou atualiza) uma Issue lembrando quais
+# normas passaram do prazo de reverificação, com o link oficial de cada uma
+# para conferência manual.
+
+on:
+  schedule:
+    - cron: '0 12 1 * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  lembrete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar prazos e abrir/atualizar Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('data/legislacao.json', 'utf8'));
+            const today = new Date().toISOString().slice(0, 10);
+            const vencidas = (data.normas || []).filter(n => n.reverificar_ate && n.reverificar_ate < today);
+
+            const marker = '<!-- lembrete-legislacao-cim -->';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'legislacao'
+            });
+            const existente = issues.find(i => i.body && i.body.includes(marker));
+
+            if (vencidas.length === 0) {
+              if (existente) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existente.number,
+                  state: 'closed'
+                });
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existente.number,
+                  body: `Todas as normas foram reverificadas dentro do prazo até ${today}. Fechando este lembrete.`
+                });
+              }
+              console.log('Nenhuma norma vencida. Nada a fazer.');
+              return;
+            }
+
+            const linhas = vencidas.map(n =>
+              `- **${n.titulo}** (${n.orgao}) — prazo era ${n.reverificar_ate} · [conferir fonte oficial](${n.url})`
+            ).join('\n');
+
+            const corpo = `${marker}\nEstas normas em \`data/legislacao.json\` passaram do prazo de reverificação (checagem automática de datas, não de conteúdo):\n\n${linhas}\n\nPara cada uma: abra o link oficial, confirme se o resumo em \`data/legislacao.json\` ainda está correto, e atualize os campos \`verificado_em\` e \`reverificar_ate\`. Este lembrete se fecha sozinho quando todas as datas voltarem a ficar em dia.`;
+
+            if (existente) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existente.number,
+                body: corpo
+              });
+              console.log(`Issue #${existente.number} atualizada.`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Revisar legislação do CIM (prazo vencido)',
+                body: corpo,
+                labels: ['legislacao']
+              });
+              console.log('Nova Issue criada.');
+            }
