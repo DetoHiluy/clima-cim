@@ -5,7 +5,7 @@ a{color:inherit}
 .shell{width:min(1220px,calc(100% - 28px));margin:0 auto;padding:24px 0 48px}
 .topbar{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:10px 0 28px}
 .brand{display:flex;gap:12px;align-items:center;text-decoration:none}
-.brand-mark{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#0f7ea8,#52d6d0);font-weight:950;color:white;letter-spacing:-.05em}
+.brand-mark{height:54px;width:auto;object-fit:contain;display:block}
 .brand small,.brand strong{display:block}
 .brand small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.11em}
 .brand strong{font-size:1.05rem;margin-top:3px}
@@ -92,7 +92,7 @@ footer p{margin:.2rem 0}
 @media(max-width:560px){
   .shell{width:min(100% - 16px,1220px);padding-top:10px}
   .brand small{display:none}
-  .brand-mark{width:46px;height:46px}
+  .brand-mark{height:46px;width:auto}
   .hero{padding-top:18px}
   .section-heading{padding:18px 18px 0}
   .profile-card,.sources-card,.rule-card,.law-panel,.method-card{border-radius:19px;padding:18px}
