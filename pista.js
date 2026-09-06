@@ -25,7 +25,7 @@ function initMap(){
  const carto=L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,{subdomains:'abcd',maxZoom:20,attribution:'&copy; OpenStreetMap contributors, &copy; CARTO'}).addTo(map);
  const fallback=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'});
  let fallbackActivated=false;carto.on('tileerror',()=>{if(!fallbackActivated){fallbackActivated=true;map.removeLayer(carto);fallback.addTo(map)}});
- let radarOn=false,radarLayers=[],radarIdx=0,radarTimer=null;
+ let radarOn=false,radarLayer=null,radarFrames=[],radarIdx=0,radarTimer=null;
  const radarCtl=L.control({position:'topright'});
  radarCtl.onAdd=function(){
   const div=L.DomUtil.create('div','leaflet-bar radar-toggle');
@@ -40,20 +40,27 @@ function initMap(){
   const data=await res.json();
   const host=data.host||'https://tilecache.rainviewer.com';
   const past=(data.radar&&data.radar.past)||[];
-  return past.slice(-6).map(f=>L.tileLayer(`${host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`,{opacity:0,zIndex:450,attribution:'Radar: RainViewer.com'}));
+  return past.slice(-6).map(f=>`${host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`);
  }
- function showRadarFrame(i){radarLayers.forEach((l,j)=>l.setOpacity(j===i?.65:0))}
  async function toggleRadar(div){
   const link=div.querySelector('a');
-  if(radarOn){radarOn=false;div.classList.remove('active');if(radarTimer){clearInterval(radarTimer);radarTimer=null}radarLayers.forEach(l=>map.removeLayer(l));radarLayers=[];link.textContent='\uD83C\uDF27\uFE0F Radar';return}
+  if(radarOn){
+   radarOn=false;div.classList.remove('active');
+   if(radarTimer){clearInterval(radarTimer);radarTimer=null}
+   if(radarLayer){map.removeLayer(radarLayer);radarLayer=null}
+   link.textContent='\uD83C\uDF27\uFE0F Radar';return
+  }
   link.textContent='\uD83C\uDF27\uFE0F Carregando\u2026';
   try{
-   radarLayers=await loadRadarFrames();
-   if(!radarLayers.length){link.textContent='\uD83C\uDF27\uFE0F Radar';return}
-   radarLayers.forEach(l=>l.addTo(map));
-   radarIdx=radarLayers.length-1;showRadarFrame(radarIdx);
+   radarFrames=await loadRadarFrames();
+   if(!radarFrames.length){link.textContent='\uD83C\uDF27\uFE0F Radar';return}
+   radarIdx=radarFrames.length-1;
+   radarLayer=L.tileLayer(radarFrames[radarIdx],{opacity:.65,zIndex:450,maxZoom:20,attribution:'Radar: RainViewer.com'}).addTo(map);
    radarOn=true;div.classList.add('active');link.textContent='\uD83C\uDF27\uFE0F Radar';
-   radarTimer=setInterval(()=>{radarIdx=(radarIdx+1)%radarLayers.length;showRadarFrame(radarIdx)},700);
+   radarTimer=setInterval(()=>{
+    radarIdx=(radarIdx+1)%radarFrames.length;
+    if(radarLayer)radarLayer.setUrl(radarFrames[radarIdx]);
+   },1000);
   }catch(err){console.warn('Radar RainViewer indisponivel',err);link.textContent='\uD83C\uDF27\uFE0F Radar'}
  }
  function off(origin,forward,right){let p=destination(origin[0],origin[1],CIM.runwayTrueHeading,forward);return destination(p[0],p[1],CIM.runwayTrueHeading+90,right)}
