@@ -25,44 +25,6 @@ function initMap(){
  const carto=L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,{subdomains:'abcd',maxZoom:20,attribution:'&copy; OpenStreetMap contributors, &copy; CARTO'}).addTo(map);
  const fallback=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'});
  let fallbackActivated=false;carto.on('tileerror',()=>{if(!fallbackActivated){fallbackActivated=true;map.removeLayer(carto);fallback.addTo(map)}});
- let radarOn=false,radarLayer=null,radarFrames=[],radarIdx=0,radarTimer=null;
- const radarCtl=L.control({position:'topright'});
- radarCtl.onAdd=function(){
-  const div=L.DomUtil.create('div','leaflet-bar radar-toggle');
-  div.innerHTML='<a href="#" title="Radar de chuva ao vivo (RainViewer)">\uD83C\uDF27\uFE0F Radar</a>';
-  L.DomEvent.disableClickPropagation(div);
-  L.DomEvent.on(div,'click',(e)=>{e.preventDefault();toggleRadar(div)});
-  return div;
- };
- radarCtl.addTo(map);
- async function loadRadarFrames(){
-  const res=await fetch('https://api.rainviewer.com/public/weather-maps.json');
-  const data=await res.json();
-  const host=data.host||'https://tilecache.rainviewer.com';
-  const past=(data.radar&&data.radar.past)||[];
-  return past.slice(-6).map(f=>`${host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`);
- }
- async function toggleRadar(div){
-  const link=div.querySelector('a');
-  if(radarOn){
-   radarOn=false;div.classList.remove('active');
-   if(radarTimer){clearInterval(radarTimer);radarTimer=null}
-   if(radarLayer){map.removeLayer(radarLayer);radarLayer=null}
-   link.textContent='\uD83C\uDF27\uFE0F Radar';return
-  }
-  link.textContent='\uD83C\uDF27\uFE0F Carregando\u2026';
-  try{
-   radarFrames=await loadRadarFrames();
-   if(!radarFrames.length){link.textContent='\uD83C\uDF27\uFE0F Radar';return}
-   radarIdx=radarFrames.length-1;
-   radarLayer=L.tileLayer(radarFrames[radarIdx],{opacity:.65,zIndex:450,maxZoom:20,attribution:'Radar: RainViewer.com'}).addTo(map);
-   radarOn=true;div.classList.add('active');link.textContent='\uD83C\uDF27\uFE0F Radar';
-   radarTimer=setInterval(()=>{
-    radarIdx=(radarIdx+1)%radarFrames.length;
-    if(radarLayer)radarLayer.setUrl(radarFrames[radarIdx]);
-   },1000);
-  }catch(err){console.warn('Radar RainViewer indisponivel',err);link.textContent='\uD83C\uDF27\uFE0F Radar'}
- }
  function off(origin,forward,right){let p=destination(origin[0],origin[1],CIM.runwayTrueHeading,forward);return destination(p[0],p[1],CIM.runwayTrueHeading+90,right)}
  function badge(text,bg='#0b1d2b',fg='#fff'){return L.divIcon({className:'map-badge-wrap',html:`<div class="map-badge" style="background:${bg};color:${fg}">${text}</div>`,iconSize:[46,32],iconAnchor:[23,16]})}
  function measureBadge(text){return L.divIcon({className:'map-badge-wrap',html:`<div class="map-badge" style="background:#fff;color:#0f3f9e;border:1px solid #2563eb;white-space:nowrap">${text}</div>`,iconSize:[96,30],iconAnchor:[48,15]})}
