@@ -1,1 +1,0 @@
-// Placeholder for attendance module implementation. This file will be replaced in the attendance feature branch.
