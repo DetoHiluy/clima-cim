@@ -12,6 +12,7 @@
   <title>CIM · Clima e condições de voo</title>
   <link rel="preload" as="image" href="assets/cim-pista-hero.webp?v=20260901-final1">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="briefing.css?v=20260907-1">
   <link rel="stylesheet" href="layout-v3.css?v=20260901-final1">
   <link rel="stylesheet" href="navigation.css?v=20260901-final1">
 </head>
@@ -51,6 +52,25 @@
         </div>
       </div>
     </header>
+
+    <section id="today-cim" class="today-cim loading" aria-live="polite">
+      <div class="today-cim-top">
+        <div class="today-cim-copy">
+          <p class="eyebrow" id="today-cim-kicker">Hoje no CIM</p>
+          <h2 id="today-cim-title">Calculando a melhor janela para voar…</h2>
+          <p id="today-cim-message">Analisando vento, rajadas, componente de través, chuva, visibilidade e o período entre nascer e pôr do sol.</p>
+          <p id="today-cim-invite" class="today-cim-invite">A ideia aqui é simples: dizer se vale a pena aparecer no clube.</p>
+        </div>
+        <span id="today-cim-badge" class="today-cim-badge">CALCULANDO</span>
+      </div>
+      <div id="today-cim-stats" class="today-cim-stats"></div>
+      <div id="today-cim-daylight" class="today-cim-daylight">Carregando janela diurna do CIM…</div>
+      <div id="today-cim-hours" class="today-cim-hours"></div>
+      <div class="today-cim-actions">
+        <button id="today-cim-share" class="today-cim-share" type="button">Compartilhar no CIM OFICIAL</button>
+        <span class="today-cim-note"><strong>Briefing auxiliar:</strong> confirme sempre a biruta, o céu e as condições reais no campo antes da decolagem.</span>
+      </div>
+    </section>
 
     <section id="status-card" class="status-card loading" aria-live="polite">
       <div class="status-copy">
@@ -159,10 +179,11 @@
 
     <footer>
       <p>Open-Meteo: estimativa de modelos meteorológicos para as coordenadas do CIM (-3.845481 / -38.460447), não medição de uma estação no campo. Precipitação e rajada são agregadas no intervalo indicado pelo próprio modelo.</p>
-      <p>METAR: observação SBFZ com redundância de fonte e limite de idade. Os níveis FAVORÁVEL / ATENÇÃO / DESAFIADOR / DESFAVORÁVEL são heurísticas operacionais do painel CIM, não limites legais ou de fabricante. Nada nesta página substitui a biruta, a observação local ou a decisão do piloto.</p>
+      <p>METAR: observação SBFZ com redundância de fonte e limite de idade. Os níveis FAVORÁVEL / ATENÇÃO / DESAFIADOR / DESFAVORÁVEL são heurísticas operacionais do painel CIM, não limites legais ou de fabricante. A janela recomendada em “Hoje no CIM” é deliberadamente limitada ao período entre nascer e pôr do sol adotado pelo clube. Nada nesta página substitui a biruta, a observação local ou a decisão do piloto.</p>
     </footer>
   </main>
 
   <script src="app.js?v=20260901-final1"></script>
+  <script src="briefing.js?v=20260907-1"></script>
 </body>
 </html>
