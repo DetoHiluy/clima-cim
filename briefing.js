@@ -63,6 +63,16 @@ function briefingDayKey(date) {
   }).format(date);
 }
 
+function briefingDayWord(label) {
+  return /amanhã/i.test(label) ? 'amanhã' : 'hoje';
+}
+
+function briefingWindText(window) {
+  const min = Math.round(window.windMin);
+  const max = Math.round(window.windMax);
+  return min === max ? `${min} km/h` : `${min}–${max} km/h`;
+}
+
 function briefingAssess(hour) {
   const rw = briefingRunway(Number(hour.windDirection) || 0, Number(hour.windSpeed) || 0);
   const cross = Math.abs(rw.cross);
@@ -192,12 +202,14 @@ function briefingBestWindow(day) {
 }
 
 function briefingSummary(window, label) {
+  const dayWord = briefingDayWord(label);
+
   if (!window) {
     return {
       className: 'bad',
       kicker: label,
-      title: 'Hoje não aparece uma boa janela de voo',
-      message: 'As condições previstas no período diurno não oferecem uma janela que o painel considere adequada. Melhor não forçar o dia.',
+      title: `Sem uma boa janela de voo ${dayWord}`,
+      message: `As condições previstas no período diurno de ${dayWord} não oferecem uma janela que o painel considere adequada.`,
       invite: 'Vale acompanhar a próxima atualização.',
       stats: []
     };
@@ -205,18 +217,18 @@ function briefingSummary(window, label) {
 
   const className = window.level === 'good' ? 'good' : window.level === 'caution' ? 'caution' : 'challenging';
   const title = window.level === 'good'
-    ? 'Boa janela para aparecer no CIM'
+    ? `Ótima janela para voar ${dayWord}`
     : window.level === 'caution'
-      ? 'Tem janela aproveitável hoje'
-      : 'Dá para voar, mas o dia exige margem';
-  const message = `Melhor janela prevista: ${briefingHour(window.start)}–${briefingTime(window.end)}. A cabeceira ${window.runway} da pista 13/31 tende a oferecer o melhor componente de proa.`;
+      ? `Boa janela para voar ${dayWord}`
+      : `Há uma janela de voo ${dayWord}, com condições mais exigentes`;
+  const message = `Melhor horário: ${briefingHour(window.start)}–${briefingHour(window.end)}. Cabeceira ${window.runway} da pista 13/31 com melhor componente de proa.`;
   const invite = window.level === 'good'
-    ? 'Quem puder, vale aproveitar o CIM hoje. ✈️'
+    ? `Quem puder, vale combinar e aparecer no CIM ${dayWord}. ✈️`
     : window.level === 'caution'
-      ? 'Quem estiver confortável com as condições pode aproveitar essa janela no clube.'
-      : 'Recomendação voltada a pilotos e modelos adequados às condições; confirme a biruta antes de voar.';
+      ? `A janela é boa para aproveitar o clube. Quem anima aparecer no CIM ${dayWord}? ✈️`
+      : `Para pilotos e modelos adequados às condições, pode ser uma boa oportunidade. Confirme a biruta no campo.`;
   const stats = [
-    `Vento ${Math.round(window.windMin)}–${Math.round(window.windMax)} km/h`,
+    `Vento ${briefingWindText(window)}`,
     `Rajadas até ${Math.round(window.gustMax)} km/h`,
     `Través até ${window.crossMax.toFixed(0)} km/h`,
     `Chuva até ${Math.round(window.popMax)}%`
@@ -226,15 +238,16 @@ function briefingSummary(window, label) {
 }
 
 function briefingShareText(summary, window, day, label) {
-  const daylight = `☀️ Voo diurno no painel: ${briefingTime(day.sunrise)}–${briefingTime(day.sunset)}`;
+  const dayWord = briefingDayWord(label);
+  const daylight = `☀️ Nascer ${briefingTime(day.sunrise)} · pôr do sol ${briefingTime(day.sunset)}`;
   if (!window) {
-    return `CIM — ${label.toLowerCase()}\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
+    return `✈️ CIM — ${dayWord}\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
   }
   return [
-    `✈️ CIM — ${label.toLowerCase()}`,
+    `✈️ CIM — ${dayWord}`,
     `${summary.title}.`,
-    `Melhor janela: ${briefingHour(window.start)}–${briefingTime(window.end)} · cabeceira ${window.runway} da pista 13/31`,
-    `Vento ${Math.round(window.windMin)}–${Math.round(window.windMax)} km/h · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
+    `Melhor horário: ${briefingHour(window.start)}–${briefingHour(window.end)} · cabeceira ${window.runway} da pista 13/31`,
+    `Vento ${briefingWindText(window)} · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
     daylight,
     '',
     summary.invite,
@@ -251,8 +264,8 @@ function briefingRenderHours(container, hours, sunset, now, isToday) {
   container.innerHTML = next.map(hour => {
     const end = new Date(Math.min(hour.time.getTime() + 3600000, sunset.getTime()));
     const start = isToday && hour.time < now ? now : hour.time;
-    const label = hour.level === 'good' ? 'favorável' : hour.level === 'caution' ? 'atenção' : hour.level === 'challenging' ? 'desafiador' : 'desfavorável';
-    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingTime(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · Cab. ${hour.runway.name}</small></article>`;
+    const label = hour.level === 'good' ? 'favorável' : hour.level === 'caution' ? 'boa, com atenção' : hour.level === 'challenging' ? 'mais exigente' : 'desfavorável';
+    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingHour(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · Cab. ${hour.runway.name}</small></article>`;
   }).join('');
 }
 
@@ -288,7 +301,11 @@ function briefingRender(data) {
   document.querySelector('#today-cim-stats').innerHTML = summary.stats.map(x => `<span>${x}</span>`).join('');
 
   const badge = document.querySelector('#today-cim-badge');
-  badge.textContent = afterSunset ? 'VOOS ENCERRADOS HOJE' : beforeSunrise ? 'ANTES DO NASCER DO SOL' : summary.className === 'good' ? 'VALE APARECER' : summary.className === 'caution' ? 'BOA JANELA' : summary.className === 'challenging' ? 'COM MARGEM' : 'SEM JANELA';
+  if (afterSunset && !isToday) {
+    badge.textContent = summary.className === 'good' ? 'AMANHÃ PROMETE' : summary.className === 'caution' ? 'BOA JANELA AMANHÃ' : summary.className === 'challenging' ? 'AMANHÃ EXIGE ATENÇÃO' : 'SEM JANELA AMANHÃ';
+  } else {
+    badge.textContent = beforeSunrise ? 'ANTES DO NASCER DO SOL' : summary.className === 'good' ? 'VALE APARECER' : summary.className === 'caution' ? 'BOA JANELA' : summary.className === 'challenging' ? 'MAIS EXIGENTE' : 'SEM JANELA';
+  }
 
   briefingRenderHours(document.querySelector('#today-cim-hours'), day.hours, day.sunset, now, isToday);
   briefingState.shareText = briefingShareText(summary, window, day, label);
