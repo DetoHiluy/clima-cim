@@ -13,8 +13,77 @@ const attendanceState = {
   counts: { total: 0, morning: 0, afternoon: 0 },
   selection: null,
   deviceId: '',
+  memberCode: '',
   ready: false
 };
+
+function attendanceMount() {
+  if (document.querySelector('#attendance-card')) return;
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = 'attendance.css?v=20260907-2';
+  document.head.appendChild(css);
+
+  const anchor = document.querySelector('#today-cim');
+  if (!anchor) return;
+  anchor.insertAdjacentHTML('afterend', `
+    <section id="attendance-card" class="attendance-card" hidden aria-live="polite">
+      <div class="attendance-top">
+        <div class="attendance-copy">
+          <p class="eyebrow" id="attendance-day-label">Movimento no clube hoje</p>
+          <h2 id="attendance-title">Carregando intenção de presença…</h2>
+          <p id="attendance-own">Veja quantos sócios pretendem aparecer e marque também sua intenção.</p>
+          <div class="attendance-breakdown" aria-label="Intenção de presença por período">
+            <span>Manhã <strong id="attendance-morning">0</strong></span>
+            <span>Tarde <strong id="attendance-afternoon">0</strong></span>
+          </div>
+        </div>
+      </div>
+      <div class="attendance-actions">
+        <button id="attendance-join" class="attendance-primary" type="button">Eu vou também</button>
+        <button id="attendance-share" class="attendance-secondary" type="button">Convidar no CIM OFICIAL</button>
+      </div>
+      <small id="attendance-status" class="attendance-status" aria-live="polite"></small>
+    </section>
+
+    <dialog id="attendance-dialog" class="attendance-dialog">
+      <div class="attendance-dialog-inner">
+        <div class="attendance-dialog-head">
+          <div>
+            <p class="eyebrow">Sua intenção</p>
+            <h3>Quando você pretende ir?</h3>
+            <p>Isso ajuda os outros sócios a saber quando haverá movimento no clube.</p>
+          </div>
+          <button id="attendance-dialog-close" class="attendance-dialog-close" type="button" aria-label="Fechar">×</button>
+        </div>
+        <label id="attendance-member-code-wrap" class="attendance-code-wrap">
+          <span>Código dos sócios</span>
+          <input id="attendance-member-code" type="password" inputmode="text" autocomplete="off" placeholder="Digite uma vez neste aparelho">
+          <small>Usado apenas para validar que a confirmação vem de um sócio do CIM.</small>
+        </label>
+        <div class="attendance-periods">
+          <button class="attendance-period" type="button" data-attendance-period="morning"><strong>Manhã</strong><small>Pretendo ir pela manhã</small></button>
+          <button class="attendance-period" type="button" data-attendance-period="afternoon"><strong>Tarde</strong><small>Pretendo ir à tarde</small></button>
+          <button class="attendance-period" type="button" data-attendance-period="both"><strong>Manhã e tarde</strong><small>Devo passar boa parte do dia no CIM</small></button>
+        </div>
+        <div class="attendance-dialog-footer">
+          <button id="attendance-remove" class="attendance-remove" type="button" hidden>Remover minha intenção</button>
+          <p class="attendance-privacy">O painel exibe somente quantidades. Nenhum nome, telefone ou identificação pessoal é mostrado aos demais usuários.</p>
+        </div>
+      </div>
+    </dialog>
+  `);
+}
+
+function attendanceBindEvents() {
+  document.querySelector('#attendance-join')?.addEventListener('click', () => attendanceDialog(true));
+  document.querySelector('#attendance-dialog-close')?.addEventListener('click', () => attendanceDialog(false));
+  document.querySelector('#attendance-remove')?.addEventListener('click', attendanceRemove);
+  document.querySelector('#attendance-share')?.addEventListener('click', attendanceShare);
+  document.querySelectorAll('[data-attendance-period]').forEach(button => {
+    button.addEventListener('click', () => attendanceSave(button.dataset.attendancePeriod));
+  });
+}
 
 function attendanceDeviceId() {
   const key = 'cim_attendance_device_v1';
@@ -23,6 +92,25 @@ function attendanceDeviceId() {
   id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
   localStorage.setItem(key, id);
   return id;
+}
+
+function attendanceStoredMemberCode() {
+  return localStorage.getItem('cim_attendance_member_code_v1') || '';
+}
+
+function attendanceSaveMemberCode(value) {
+  attendanceState.memberCode = value;
+  if (value) localStorage.setItem('cim_attendance_member_code_v1', value);
+  else localStorage.removeItem('cim_attendance_member_code_v1');
+  attendanceUpdateCodeField();
+}
+
+function attendanceUpdateCodeField() {
+  const wrap = document.querySelector('#attendance-member-code-wrap');
+  const input = document.querySelector('#attendance-member-code');
+  if (!wrap || !input) return;
+  wrap.hidden = Boolean(attendanceState.memberCode);
+  if (!attendanceState.memberCode) input.value = '';
 }
 
 function attendanceDate(value, offsetSeconds) {
@@ -49,11 +137,10 @@ function attendanceAdjustedCounts(previous, next) {
   if (!previous && next) counts.total++;
   if (previous && !next) counts.total = Math.max(0, counts.total - 1);
   for (const part of ['morning', 'afternoon']) {
-    const key = part === 'morning' ? 'morning' : 'afternoon';
     const before = attendanceIncludes(previous, part);
     const after = attendanceIncludes(next, part);
-    if (!before && after) counts[key]++;
-    if (before && !after) counts[key] = Math.max(0, counts[key] - 1);
+    if (!before && after) counts[part]++;
+    if (before && !after) counts[part] = Math.max(0, counts[part] - 1);
   }
   return counts;
 }
@@ -88,6 +175,7 @@ function attendanceRender() {
   document.querySelectorAll('[data-attendance-period]').forEach(button => {
     button.classList.toggle('selected', button.dataset.attendancePeriod === attendanceState.selection);
   });
+  attendanceUpdateCodeField();
 }
 
 function attendanceSetStatus(text, tone = '') {
@@ -146,6 +234,7 @@ async function attendanceLoadCounts() {
 function attendanceDialog(open = true) {
   const dialog = document.querySelector('#attendance-dialog');
   if (!dialog) return;
+  attendanceUpdateCodeField();
   if (open) {
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
@@ -153,8 +242,19 @@ function attendanceDialog(open = true) {
   else dialog.removeAttribute('open');
 }
 
+function attendanceCodeForRequest() {
+  const input = document.querySelector('#attendance-member-code');
+  return attendanceState.memberCode || String(input?.value || '').trim();
+}
+
 async function attendanceSave(period) {
   if (!attendanceState.api) return;
+  const memberCode = attendanceCodeForRequest();
+  if (!memberCode) {
+    attendanceSetStatus('Informe o código dos sócios para registrar sua intenção.', 'error');
+    document.querySelector('#attendance-member-code')?.focus();
+    return;
+  }
   const previous = attendanceState.selection;
   const previousCounts = { ...attendanceState.counts };
   attendanceState.counts = attendanceAdjustedCounts(previous, period);
@@ -169,22 +269,40 @@ async function attendanceSave(period) {
       body: JSON.stringify({
         date: attendanceState.date,
         device_id: attendanceState.deviceId,
+        member_code: memberCode,
         period
       })
     });
+    if (response.status === 401) {
+      attendanceSaveMemberCode('');
+      throw new Error('member_code');
+    }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    attendanceSaveMemberCode(memberCode);
     attendanceSetStatus('Intenção registrada ✓', 'ok');
     setTimeout(() => attendanceLoadCounts().catch(() => {}), 2500);
   } catch (error) {
     attendanceState.counts = previousCounts;
     attendanceState.selection = previous;
     attendanceRender();
-    attendanceSetStatus('Não foi possível registrar agora. Tente novamente.', 'error');
+    if (error?.message === 'member_code') {
+      attendanceSetStatus('Código dos sócios não reconhecido.', 'error');
+      attendanceDialog(true);
+      document.querySelector('#attendance-member-code')?.focus();
+    } else {
+      attendanceSetStatus('Não foi possível registrar agora. Tente novamente.', 'error');
+    }
   }
 }
 
 async function attendanceRemove() {
   if (!attendanceState.api || !attendanceState.selection) return;
+  const memberCode = attendanceCodeForRequest();
+  if (!memberCode) {
+    attendanceSetStatus('Informe novamente o código dos sócios.', 'error');
+    attendanceDialog(true);
+    return;
+  }
   const previous = attendanceState.selection;
   const previousCounts = { ...attendanceState.counts };
   attendanceState.counts = attendanceAdjustedCounts(previous, null);
@@ -196,8 +314,16 @@ async function attendanceRemove() {
     const response = await fetch(`${attendanceState.api}/attendance`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: attendanceState.date, device_id: attendanceState.deviceId })
+      body: JSON.stringify({
+        date: attendanceState.date,
+        device_id: attendanceState.deviceId,
+        member_code: memberCode
+      })
     });
+    if (response.status === 401) {
+      attendanceSaveMemberCode('');
+      throw new Error('member_code');
+    }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     attendanceSetStatus('Intenção removida.', 'ok');
     setTimeout(() => attendanceLoadCounts().catch(() => {}), 2500);
@@ -205,7 +331,7 @@ async function attendanceRemove() {
     attendanceState.counts = previousCounts;
     attendanceState.selection = previous;
     attendanceRender();
-    attendanceSetStatus('Não foi possível alterar agora. Tente novamente.', 'error');
+    attendanceSetStatus(error?.message === 'member_code' ? 'Código dos sócios não reconhecido.' : 'Não foi possível alterar agora. Tente novamente.', 'error');
   }
 }
 
@@ -232,7 +358,10 @@ async function attendanceInit() {
   try {
     attendanceState.api = await attendanceLoadConfig();
     if (!attendanceState.api) return;
+    attendanceMount();
+    attendanceBindEvents();
     attendanceState.deviceId = attendanceDeviceId();
+    attendanceState.memberCode = attendanceStoredMemberCode();
     const target = await attendanceTargetDay();
     attendanceState.date = target.date;
     attendanceState.dayLabel = target.dayLabel;
@@ -248,14 +377,6 @@ async function attendanceInit() {
     }
   }
 }
-
-document.querySelector('#attendance-join')?.addEventListener('click', () => attendanceDialog(true));
-document.querySelector('#attendance-dialog-close')?.addEventListener('click', () => attendanceDialog(false));
-document.querySelector('#attendance-remove')?.addEventListener('click', attendanceRemove);
-document.querySelector('#attendance-share')?.addEventListener('click', attendanceShare);
-document.querySelectorAll('[data-attendance-period]').forEach(button => {
-  button.addEventListener('click', () => attendanceSave(button.dataset.attendancePeriod));
-});
 
 attendanceInit();
 setInterval(() => {
