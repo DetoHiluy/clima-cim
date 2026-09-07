@@ -59,6 +59,10 @@ function validDeviceId(value) {
   return typeof value === 'string' && /^[A-Za-z0-9_-]{16,96}$/.test(value);
 }
 
+function validMemberCode(env, value) {
+  return typeof env.MEMBER_CODE === 'string' && env.MEMBER_CODE.length >= 4 && value === env.MEMBER_CODE;
+}
+
 async function hashDevice(value) {
   const bytes = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest('SHA-256', bytes);
@@ -120,7 +124,13 @@ export default {
 
     const url = new URL(request.url);
     if (url.pathname === '/health' && request.method === 'GET') {
-      return json(request, env, { ok: true, service: 'CIM attendance', date: localDateKey(), time: new Date().toISOString() });
+      return json(request, env, {
+        ok: true,
+        service: 'CIM attendance',
+        date: localDateKey(),
+        member_validation: Boolean(env.MEMBER_CODE),
+        time: new Date().toISOString()
+      });
     }
 
     if (url.pathname !== '/attendance') return json(request, env, { error: 'not_found' }, 404);
@@ -140,6 +150,8 @@ export default {
       const date = body?.date;
       const period = body?.period;
       const deviceId = body?.device_id;
+      if (!env.MEMBER_CODE) return json(request, env, { error: 'member_validation_not_configured' }, 503);
+      if (!validMemberCode(env, body?.member_code)) return json(request, env, { error: 'member_code_required' }, 401);
       if (!validDate(date)) return json(request, env, { error: 'invalid_date' }, 400);
       if (!PERIODS.has(period)) return json(request, env, { error: 'invalid_period' }, 400);
       if (!validDeviceId(deviceId)) return json(request, env, { error: 'invalid_device' }, 400);
@@ -155,6 +167,8 @@ export default {
       const body = await readBody(request);
       const date = body?.date;
       const deviceId = body?.device_id;
+      if (!env.MEMBER_CODE) return json(request, env, { error: 'member_validation_not_configured' }, 503);
+      if (!validMemberCode(env, body?.member_code)) return json(request, env, { error: 'member_code_required' }, 401);
       if (!validDate(date)) return json(request, env, { error: 'invalid_date' }, 400);
       if (!validDeviceId(deviceId)) return json(request, env, { error: 'invalid_device' }, 400);
       const hash = await hashDevice(deviceId);
