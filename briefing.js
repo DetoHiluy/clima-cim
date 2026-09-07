@@ -8,13 +8,6 @@ const CIM_BRIEFING = {
   ]
 };
 
-const briefingWeatherMap = {
-  0: 'céu limpo', 1: 'tempo firme', 2: 'parcialmente nublado', 3: 'nublado',
-  45: 'neblina', 48: 'neblina', 51: 'garoa fraca', 53: 'garoa', 55: 'garoa forte',
-  61: 'chuva fraca', 63: 'chuva', 65: 'chuva forte', 80: 'pancadas fracas',
-  81: 'pancadas', 82: 'pancadas fortes', 95: 'trovoadas', 96: 'trovoadas', 99: 'trovoadas fortes'
-};
-
 const briefingState = { shareText: '', lastData: null };
 
 function briefingNormalizeAngle(a) { return ((a % 360) + 360) % 360; }
@@ -62,12 +55,6 @@ function briefingHour(date) {
   const h = parts.find(p => p.type === 'hour')?.value || '--';
   const m = parts.find(p => p.type === 'minute')?.value || '00';
   return m === '00' ? `${h}h` : `${h}:${m}`;
-}
-
-function briefingDayLabel(date) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    weekday: 'long', day: '2-digit', month: '2-digit', timeZone: CIM_BRIEFING.timezone
-  }).format(date);
 }
 
 function briefingDayKey(date) {
@@ -200,12 +187,11 @@ function briefingBestWindow(day) {
     return acc;
   }, {});
   const runway = Object.entries(runwayVotes).sort((a, b) => b[1] - a[1])[0]?.[0] || useful[0].runway.name;
-  const weatherCode = useful.sort((a, b) => b.score - a.score)[0].weatherCode;
 
-  return { level: windowLevel, hours: useful, start, end, windMin, windMax, gustMax, popMax, crossMax, runway, weatherCode };
+  return { level: windowLevel, hours: useful, start, end, windMin, windMax, gustMax, popMax, crossMax, runway };
 }
 
-function briefingSummary(window, day, label) {
+function briefingSummary(window, label) {
   if (!window) {
     return {
       className: 'bad',
@@ -239,13 +225,13 @@ function briefingSummary(window, day, label) {
   return { className, kicker: label, title, message, invite, stats };
 }
 
-function briefingShareText(summary, window, day) {
+function briefingShareText(summary, window, day, label) {
   const daylight = `☀️ Voo diurno no painel: ${briefingTime(day.sunrise)}–${briefingTime(day.sunset)}`;
   if (!window) {
-    return `CIM — briefing de hoje\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
+    return `CIM — ${label.toLowerCase()}\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
   }
   return [
-    '✈️ CIM — briefing de hoje',
+    `✈️ CIM — ${label.toLowerCase()}`,
     `${summary.title}.`,
     `Melhor janela: ${briefingHour(window.start)}–${briefingTime(window.end)} · pista ${window.runway}`,
     `Vento ${Math.round(window.windMin)}–${Math.round(window.windMax)} km/h · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
@@ -256,7 +242,7 @@ function briefingShareText(summary, window, day) {
   ].join('\n');
 }
 
-function briefingRenderHours(container, hours, sunset) {
+function briefingRenderHours(container, hours, sunset, now, isToday) {
   const next = hours.slice(0, 3);
   if (!next.length) {
     container.innerHTML = '<span class="briefing-empty">Sem novos intervalos diurnos para mostrar.</span>';
@@ -264,8 +250,9 @@ function briefingRenderHours(container, hours, sunset) {
   }
   container.innerHTML = next.map(hour => {
     const end = new Date(Math.min(hour.time.getTime() + 3600000, sunset.getTime()));
+    const start = isToday && hour.time < now ? now : hour.time;
     const label = hour.level === 'good' ? 'favorável' : hour.level === 'caution' ? 'atenção' : hour.level === 'challenging' ? 'desafiador' : 'desfavorável';
-    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(hour.time)}–${briefingTime(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · P${hour.runway.name}</small></article>`;
+    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingTime(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · P${hour.runway.name}</small></article>`;
   }).join('');
 }
 
@@ -280,14 +267,18 @@ function briefingRender(data) {
   let day = today;
   let window = briefingBestWindow(today);
   let label = 'Hoje no CIM';
+  let isToday = true;
 
   if (afterSunset && data.daily.time.length > 1) {
     day = briefingBuildHours(data, 1, now);
     window = briefingBestWindow(day);
     label = 'Amanhã no CIM';
+    isToday = false;
   }
 
-  const summary = briefingSummary(window, day, label);
+  if (isToday && window && window.start < now && now < window.end) window.start = now;
+
+  const summary = briefingSummary(window, label);
   panel.className = `today-cim ${summary.className}`;
   document.querySelector('#today-cim-kicker').textContent = summary.kicker;
   document.querySelector('#today-cim-title').textContent = summary.title;
@@ -299,8 +290,8 @@ function briefingRender(data) {
   const badge = document.querySelector('#today-cim-badge');
   badge.textContent = afterSunset ? 'VOOS ENCERRADOS HOJE' : beforeSunrise ? 'ANTES DO NASCER DO SOL' : summary.className === 'good' ? 'VALE APARECER' : summary.className === 'caution' ? 'BOA JANELA' : summary.className === 'challenging' ? 'COM MARGEM' : 'SEM JANELA';
 
-  briefingRenderHours(document.querySelector('#today-cim-hours'), day.hours, day.sunset);
-  briefingState.shareText = briefingShareText(summary, window, day);
+  briefingRenderHours(document.querySelector('#today-cim-hours'), day.hours, day.sunset, now, isToday);
+  briefingState.shareText = briefingShareText(summary, window, day, label);
 }
 
 async function briefingShare() {
