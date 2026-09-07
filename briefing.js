@@ -209,7 +209,7 @@ function briefingSummary(window, label) {
     : window.level === 'caution'
       ? 'Tem janela aproveitável hoje'
       : 'Dá para voar, mas o dia exige margem';
-  const message = `Melhor janela prevista: ${briefingHour(window.start)}–${briefingTime(window.end)}. Pista ${window.runway} tende a oferecer o melhor componente de proa.`;
+  const message = `Melhor janela prevista: ${briefingHour(window.start)}–${briefingTime(window.end)}. A cabeceira ${window.runway} da pista 13/31 tende a oferecer o melhor componente de proa.`;
   const invite = window.level === 'good'
     ? 'Quem puder, vale aproveitar o CIM hoje. ✈️'
     : window.level === 'caution'
@@ -233,7 +233,7 @@ function briefingShareText(summary, window, day, label) {
   return [
     `✈️ CIM — ${label.toLowerCase()}`,
     `${summary.title}.`,
-    `Melhor janela: ${briefingHour(window.start)}–${briefingTime(window.end)} · pista ${window.runway}`,
+    `Melhor janela: ${briefingHour(window.start)}–${briefingTime(window.end)} · cabeceira ${window.runway} da pista 13/31`,
     `Vento ${Math.round(window.windMin)}–${Math.round(window.windMax)} km/h · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
     daylight,
     '',
@@ -252,7 +252,7 @@ function briefingRenderHours(container, hours, sunset, now, isToday) {
     const end = new Date(Math.min(hour.time.getTime() + 3600000, sunset.getTime()));
     const start = isToday && hour.time < now ? now : hour.time;
     const label = hour.level === 'good' ? 'favorável' : hour.level === 'caution' ? 'atenção' : hour.level === 'challenging' ? 'desafiador' : 'desfavorável';
-    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingTime(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · P${hour.runway.name}</small></article>`;
+    return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingTime(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · Cab. ${hour.runway.name}</small></article>`;
   }).join('');
 }
 
@@ -346,6 +346,36 @@ async function loadCimBriefing() {
   }
 }
 
+function applyRunwayTerminology() {
+  const preferred = document.querySelector('#preferred-runway');
+  const prefMatch = preferred?.textContent.match(/(?:pista|cabeceira)\s+(13|31)/i);
+  if (preferred && prefMatch) preferred.textContent = `Cabeceira preferencial: ${prefMatch[1]}`;
+
+  const summary = document.querySelector('#runway-summary');
+  if (summary) {
+    summary.textContent = summary.textContent.replace(/a pista (13|31) oferece/i, 'a cabeceira $1 da pista 13/31 oferece');
+  }
+
+  document.querySelectorAll('.runway-wind-line span').forEach(span => {
+    span.textContent = span.textContent.replace(/Vento relativo à pista (13|31)/i, 'Vento relativo à cabeceira $1');
+  });
+
+  document.querySelectorAll('.forecast-wind').forEach(el => {
+    el.textContent = el.textContent.replace(/^P(13|31)\s*·/i, 'Cab. $1 ·');
+  });
+}
+
+function loadAttendanceModule() {
+  if (document.querySelector('script[data-cim-attendance]')) return;
+  const script = document.createElement('script');
+  script.src = 'attendance.js?v=20260907-2';
+  script.dataset.cimAttendance = 'true';
+  document.body.appendChild(script);
+}
+
 document.querySelector('#today-cim-share')?.addEventListener('click', briefingShare);
 loadCimBriefing();
+applyRunwayTerminology();
+loadAttendanceModule();
 setInterval(loadCimBriefing, 5 * 60 * 1000);
+setInterval(applyRunwayTerminology, 1000);
