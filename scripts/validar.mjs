@@ -13,14 +13,20 @@ let errors = 0;
 const fail = (msg) => { console.error(`✗ ${msg}`); errors++; };
 const ok = (msg) => console.log(`✓ ${msg}`);
 
-// 1. Todo .js do repositório (raiz) precisa ter sintaxe válida.
-const jsFiles = readdirSync(root).filter(f => f.endsWith('.js'));
-for (const file of jsFiles) {
+// 1. Todo .js da raiz e do edge precisa ter sintaxe válida.
+const jsFiles = [
+  ...readdirSync(root).filter(f => f.endsWith('.js')).map(f => path.join(root, f)),
+  ...(existsSync(path.join(root, 'edge'))
+    ? readdirSync(path.join(root, 'edge')).filter(f => f.endsWith('.js')).map(f => path.join(root, 'edge', f))
+    : [])
+];
+for (const filePath of jsFiles) {
+  const relative = path.relative(root, filePath);
   try {
-    execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
-    ok(`sintaxe válida: ${file}`);
+    execFileSync(process.execPath, ['--check', filePath], { stdio: 'pipe' });
+    ok(`sintaxe válida: ${relative}`);
   } catch (e) {
-    fail(`erro de sintaxe em ${file}: ${e.stderr?.toString().trim() || e.message}`);
+    fail(`erro de sintaxe em ${relative}: ${e.stderr?.toString().trim() || e.message}`);
   }
 }
 
