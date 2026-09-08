@@ -253,12 +253,25 @@ function briefingSummary(window, label) {
   return { className, kicker: label, title, message, invite, stats };
 }
 
+function briefingWhatsappInvite(window, dayWord) {
+  if (!window) {
+    return `Sócios, vamos ao CIM ${dayWord}! Se o tempo não deixar voar, vai dar muito papo e resenha. O importante é a turma se encontrar no clube. ✈️`;
+  }
+
+  if (window.level === 'challenging') {
+    return `Sócios, vamos ao CIM ${dayWord}! O voo pode exigir mais atenção, mas o encontro da turma continua valendo. Se não der voo, vai dar muito papo e resenha. ✈️`;
+  }
+
+  return `Sócios, vamos ao CIM ${dayWord}! Se der voo, ótimo. Se não der, vai dar muito papo e resenha. O importante é a turma estar no clube. ✈️`;
+}
+
 function briefingShareText(summary, window, day, label) {
   const dayWord = briefingDayWord(label);
   const daylight = `☀️ Nascer ${briefingTime(day.sunrise)} · pôr do sol ${briefingTime(day.sunset)}`;
+  const invite = briefingWhatsappInvite(window, dayWord);
 
   if (!window) {
-    return `✈️ CIM — ${dayWord}\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
+    return `✈️ CIM — ${dayWord}\n${summary.title}.\n${daylight}\n\n${invite}\nhttps://detohiluy.github.io/clima-cim/`;
   }
 
   return [
@@ -267,7 +280,7 @@ function briefingShareText(summary, window, day, label) {
     `Cabeceira ${window.runway} da pista 13/31 · vento ${briefingWindText(window)} · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
     daylight,
     '',
-    summary.invite,
+    invite,
     'https://detohiluy.github.io/clima-cim/'
   ].join('\n');
 }
