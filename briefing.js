@@ -236,7 +236,7 @@ function briefingSummary(window, label) {
       ? `Boa janela para voar ${dayWord}`
       : `Há uma janela de voo ${dayWord}, com condições mais exigentes`;
 
-  const message = `Melhor horário: ${briefingHour(window.start)}–${briefingHour(window.end)}. Cabeceira ${window.runway} da pista 13/31 com melhor componente de proa.`;
+  const message = `Cabeceira ${window.runway} da pista 13/31 com melhor componente de proa.`;
   const invite = window.level === 'good'
     ? `Quem puder, vale combinar e aparecer no CIM ${dayWord}. ✈️`
     : window.level === 'caution'
@@ -378,8 +378,7 @@ function briefingShare() {
   if (!text) return;
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-  if (!opened) window.location.href = whatsappUrl;
+  window.location.href = whatsappUrl;
 }
 
 async function loadCimBriefing() {
