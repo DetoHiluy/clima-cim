@@ -1,0 +1,83 @@
+name: Implantar presença CIM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cim-attendance-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CIM_MEMBER_CODE: ${{ secrets.CIM_MEMBER_CODE }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Verificar credenciais
+        id: preflight
+        shell: bash
+        run: |
+          if [[ -z "$CF_API_TOKEN" || -z "$CF_ACCOUNT_ID" || -z "$CIM_MEMBER_CODE" ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Implantação não executada: configure CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID e CIM_MEMBER_CODE nos Secrets do repositório."
+            exit 0
+          fi
+          if [[ ${#CIM_MEMBER_CODE} -lt 4 ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Implantação não executada: CIM_MEMBER_CODE precisa ter pelo menos 4 caracteres."
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Implantar Worker e provisionar KV
+        if: steps.preflight.outputs.ready == 'true'
+        id: deploy
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          umask 077
+          printf 'MEMBER_CODE=%s\n' "$CIM_MEMBER_CODE" > /tmp/cim-attendance-secrets.env
+          npx --yes wrangler@latest deploy \
+            --config edge/wrangler-attendance.jsonc \
+            --secrets-file /tmp/cim-attendance-secrets.env 2>&1 | tee /tmp/cim-attendance-deploy.log
+          rm -f /tmp/cim-attendance-secrets.env
+
+          API_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' /tmp/cim-attendance-deploy.log | tail -1 || true)
+          if [[ -z "$API_URL" ]]; then
+            echo "Não foi possível identificar a URL workers.dev no resultado do Wrangler."
+            exit 1
+          fi
+          echo "api_url=$API_URL" >> "$GITHUB_OUTPUT"
+          printf '{\n  "api_base": "%s"\n}\n' "$API_URL" > data/attendance-config.json
+
+      - name: Testar API implantada
+        if: steps.preflight.outputs.ready == 'true'
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 2 "${{ steps.deploy.outputs.api_url }}/health"
+
+      - name: Ativar contador no site
+        if: steps.preflight.outputs.ready == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/attendance-config.json edge/wrangler-attendance.jsonc
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração de configuração para gravar."
+            exit 0
+          fi
+          git commit -m "Ativa API de presença do CIM"
+          git push origin HEAD:main
