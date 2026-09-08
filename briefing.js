@@ -264,8 +264,7 @@ function briefingShareText(summary, window, day, label) {
   return [
     `✈️ CIM — ${dayWord}`,
     `${summary.title}.`,
-    `Melhor horário: ${briefingHour(window.start)}–${briefingHour(window.end)} · cabeceira ${window.runway} da pista 13/31`,
-    `Vento ${briefingWindText(window)} · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
+    `Cabeceira ${window.runway} da pista 13/31 · vento ${briefingWindText(window)} · rajadas até ${Math.round(window.gustMax)} km/h · chuva até ${Math.round(window.popMax)}%`,
     daylight,
     '',
     summary.invite,
