@@ -311,8 +311,26 @@ function briefingRender(data) {
   briefingState.shareText = briefingShareText(summary, window, day, label);
 }
 
+function briefingTextWithAttendance(text) {
+  const card = document.querySelector('#attendance-card');
+  if (!text || !card || card.hidden || card.classList.contains('unavailable')) return text;
+
+  const totalText = document.querySelector('#attendance-title')?.textContent || '';
+  const totalMatch = totalText.match(/^(\d+)\s+sócio/i);
+  const total = totalMatch ? Number(totalMatch[1]) : 0;
+  if (!Number.isFinite(total) || total <= 0) return text;
+
+  const morning = Number(document.querySelector('#attendance-morning')?.textContent) || 0;
+  const afternoon = Number(document.querySelector('#attendance-afternoon')?.textContent) || 0;
+  const social = `${total === 1 ? '1 sócio pretende ir' : `${total} sócios pretendem ir`} · Manhã ${morning} · Tarde ${afternoon}`;
+  const url = 'https://detohiluy.github.io/clima-cim/';
+  return text.includes(`\n${url}`)
+    ? text.replace(`\n${url}`, `\n\n✈️ ${social}\n${url}`)
+    : `${text}\n\n✈️ ${social}`;
+}
+
 async function briefingShare() {
-  const text = briefingState.shareText;
+  const text = briefingTextWithAttendance(briefingState.shareText);
   if (!text) return;
   const button = document.querySelector('#today-cim-share');
   try {
@@ -382,10 +400,22 @@ function applyRunwayTerminology() {
   });
 }
 
+function watchRunwayTerminology() {
+  const targets = [
+    document.querySelector('#preferred-runway'),
+    document.querySelector('#runway-summary'),
+    document.querySelector('.runway-wind-line'),
+    document.querySelector('#hourly-forecast')
+  ].filter(Boolean);
+  if (!targets.length || typeof MutationObserver !== 'function') return;
+  const observer = new MutationObserver(() => applyRunwayTerminology());
+  targets.forEach(target => observer.observe(target, { childList: true, subtree: true, characterData: true }));
+}
+
 function loadAttendanceModule() {
   if (document.querySelector('script[data-cim-attendance]')) return;
   const script = document.createElement('script');
-  script.src = 'attendance.js?v=20260907-2';
+  script.src = 'attendance.js?v=20260908-1';
   script.dataset.cimAttendance = 'true';
   document.body.appendChild(script);
 }
@@ -393,6 +423,6 @@ function loadAttendanceModule() {
 document.querySelector('#today-cim-share')?.addEventListener('click', briefingShare);
 loadCimBriefing();
 applyRunwayTerminology();
+watchRunwayTerminology();
 loadAttendanceModule();
 setInterval(loadCimBriefing, 5 * 60 * 1000);
-setInterval(applyRunwayTerminology, 1000);
