@@ -33,19 +33,31 @@ O gerador combina abertura, corpo e fechamento em centenas de combinações por 
 
 ## Tom por dia
 
-- Segunda a quinta: convite direto, mais casual, sem tratar todo dia como evento.
+- Segunda: mini resumo verificável do fim de semana e criação de expectativa para sexta-feira e o próximo fim de semana. Não é chamada de presença para a própria segunda.
+- Terça a quinta: convite direto apenas quando houver motivo real; não tratar todo dia como evento.
 - Sexta: aquecimento para o fim de semana e chamada para movimentar o clube.
 - Sábado: chamada mais forte; é o principal dia editorial.
 - Domingo: chamada social de fechamento do fim de semana, sem obrigação de enviar se não houver motivo novo.
 
-## Frequência recomendada
+## Ciclo editorial semanal
 
-- Sexta no fim da tarde: chamada principal do fim de semana.
-- Sábado pela manhã: briefing + convite direto.
-- Domingo pela manhã: apenas quando houver condição, movimentação ou informação que justifique nova mensagem.
-- Meio da semana: no máximo uma mensagem quando houver motivo real (condição especialmente interessante, feriado, evento ou presença já sinalizada).
+- **Segunda pela manhã:** mini resumo do fim de semana usando apenas fatos confirmados. Fechar deixando o próximo fim de semana no radar e criando expectativa para a chamada de sexta.
+- **Quarta pela manhã:** oportunidade condicional. Só gerar mensagem quando houver um motivo realmente forte, como condição especialmente interessante, feriado, evento ou sinal claro de movimentação.
+- **Sexta no fim da tarde:** chamada principal do fim de semana.
+- **Sábado pela manhã:** briefing + convite direto; principal chamada de presença da semana.
+- **Domingo pela manhã:** condicional. Só gerar nova chamada quando houver informação nova, mudança relevante de condição ou outro motivo que justifique não repetir a mensagem de sábado.
 
-Faixa normal: **2 a 4 mensagens por semana**. O objetivo é criar hábito e expectativa, não ruído.
+Faixa normal: **3 a 5 contatos editoriais por semana**, sendo apenas segunda, sexta e sábado recorrentes. Quarta e domingo são condicionais. O objetivo é criar hábito e expectativa, não ruído.
+
+## Resumo de segunda-feira
+
+O resumo de segunda não pode transformar intenção em presença real nem inventar acontecimentos do clube. Só usar:
+
+- dados meteorológicos verificáveis do fim de semana;
+- intenção de presença, identificada explicitamente como intenção, quando o módulo estiver ativo;
+- eventos, resultados ou acontecimentos que tenham fonte objetiva disponível.
+
+Sem fonte, não escrever frases como “o clube esteve cheio”, “muita gente voou”, “foi um grande fim de semana” ou equivalentes. O fechamento deve fazer a ponte para o próximo ciclo, por exemplo com ideias como “o próximo fim de semana já entra no radar” ou “sexta tem nova chamada”, sempre variando a redação.
 
 ## Segurança
 
