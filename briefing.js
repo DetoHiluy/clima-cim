@@ -44,13 +44,18 @@ function briefingDate(value, offsetSeconds) {
 function briefingTime(date) {
   if (!date || Number.isNaN(date.getTime())) return '--:--';
   return new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit', minute: '2-digit', timeZone: CIM_BRIEFING.timezone
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: CIM_BRIEFING.timezone
   }).format(date);
 }
 
 function briefingHour(date) {
   const parts = new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit', minute: '2-digit', timeZone: CIM_BRIEFING.timezone, hour12: false
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: CIM_BRIEFING.timezone,
+    hour12: false
   }).formatToParts(date);
   const h = parts.find(p => p.type === 'hour')?.value || '--';
   const m = parts.find(p => p.type === 'minute')?.value || '00';
@@ -59,7 +64,10 @@ function briefingHour(date) {
 
 function briefingDayKey(date) {
   return new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric', month: '2-digit', day: '2-digit', timeZone: CIM_BRIEFING.timezone
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: CIM_BRIEFING.timezone
   }).format(date);
 }
 
@@ -134,7 +142,7 @@ function briefingBuildHours(data, dayIndex, now) {
   for (let i = 0; i < h.time.length; i++) {
     const time = briefingDate(h.time[i], offset);
     if (!time || briefingDayKey(time) !== dayKey) continue;
-    if (time < sunrise || time >= sunset) continue;
+    if (!sunrise || !sunset || time < sunrise || time >= sunset) continue;
     if (dayIndex === 0 && time < new Date(now.getTime() - 40 * 60 * 1000)) continue;
 
     hours.push(briefingAssess({
@@ -158,29 +166,35 @@ function briefingBestRun(hours, maxRank) {
   let current = [];
   for (const hour of hours) {
     if (briefingLevelRank(hour.level) <= maxRank) current.push(hour);
-    else if (current.length) { runs.push(current); current = []; }
+    else if (current.length) {
+      runs.push(current);
+      current = [];
+    }
   }
   if (current.length) runs.push(current);
   if (!runs.length) return null;
 
   return runs.sort((a, b) => {
-    if (b.length !== a.length) return b.length - a.length;
     const aAvg = a.reduce((s, x) => s + x.score, 0) / a.length;
     const bAvg = b.reduce((s, x) => s + x.score, 0) / b.length;
-    return aAvg - bAvg;
+    if (aAvg !== bAvg) return aAvg - bAvg;
+    if (b.length !== a.length) return b.length - a.length;
+    return a[0].time - b[0].time;
   })[0];
 }
 
 function briefingBestWindow(day) {
-  if (!day.hours.length) return null;
+  if (!day.hours.length || !day.sunset) return null;
   let run = briefingBestRun(day.hours, 1);
   let windowLevel = 'good';
+
   if (!run) {
     run = briefingBestRun(day.hours, 2);
     windowLevel = 'challenging';
   } else if (run.some(x => x.level === 'caution')) {
     windowLevel = 'caution';
   }
+
   if (!run) return null;
 
   const useful = run.slice(0, 4);
@@ -221,12 +235,14 @@ function briefingSummary(window, label) {
     : window.level === 'caution'
       ? `Boa janela para voar ${dayWord}`
       : `Há uma janela de voo ${dayWord}, com condições mais exigentes`;
+
   const message = `Melhor horário: ${briefingHour(window.start)}–${briefingHour(window.end)}. Cabeceira ${window.runway} da pista 13/31 com melhor componente de proa.`;
   const invite = window.level === 'good'
     ? `Quem puder, vale combinar e aparecer no CIM ${dayWord}. ✈️`
     : window.level === 'caution'
       ? `A janela é boa para aproveitar o clube. Quem anima aparecer no CIM ${dayWord}? ✈️`
       : `Para pilotos e modelos adequados às condições, pode ser uma boa oportunidade. Confirme a biruta no campo.`;
+
   const stats = [
     `Vento ${briefingWindText(window)}`,
     `Rajadas até ${Math.round(window.gustMax)} km/h`,
@@ -240,9 +256,11 @@ function briefingSummary(window, label) {
 function briefingShareText(summary, window, day, label) {
   const dayWord = briefingDayWord(label);
   const daylight = `☀️ Nascer ${briefingTime(day.sunrise)} · pôr do sol ${briefingTime(day.sunset)}`;
+
   if (!window) {
     return `✈️ CIM — ${dayWord}\n${summary.title}.\n${daylight}\n\n${summary.invite}\nhttps://detohiluy.github.io/clima-cim/`;
   }
+
   return [
     `✈️ CIM — ${dayWord}`,
     `${summary.title}.`,
@@ -261,10 +279,18 @@ function briefingRenderHours(container, hours, sunset, now, isToday) {
     container.innerHTML = '<span class="briefing-empty">Sem novos intervalos diurnos para mostrar.</span>';
     return;
   }
+
   container.innerHTML = next.map(hour => {
     const end = new Date(Math.min(hour.time.getTime() + 3600000, sunset.getTime()));
     const start = isToday && hour.time < now ? now : hour.time;
-    const label = hour.level === 'good' ? 'favorável' : hour.level === 'caution' ? 'boa, com atenção' : hour.level === 'challenging' ? 'mais exigente' : 'desfavorável';
+    const label = hour.level === 'good'
+      ? 'favorável'
+      : hour.level === 'caution'
+        ? 'boa, com atenção'
+        : hour.level === 'challenging'
+          ? 'mais exigente'
+          : 'desfavorável';
+
     return `<article class="briefing-hour ${hour.level}"><strong>${briefingHour(start)}–${briefingHour(end)}</strong><span>${label}</span><small>${Math.round(hour.windSpeed)} km/h · G${Math.round(hour.gust)} · Cab. ${hour.runway.name}</small></article>`;
   }).join('');
 }
@@ -273,10 +299,12 @@ function briefingRender(data) {
   briefingState.lastData = data;
   const panel = document.querySelector('#today-cim');
   if (!panel) return;
+
   const now = new Date();
   const today = briefingBuildHours(data, 0, now);
-  const afterSunset = now >= today.sunset;
-  const beforeSunrise = now < today.sunrise;
+  const afterSunset = Boolean(today.sunset && now >= today.sunset);
+  const beforeSunrise = Boolean(today.sunrise && now < today.sunrise);
+
   let day = today;
   let window = briefingBestWindow(today);
   let label = 'Hoje no CIM';
@@ -289,7 +317,9 @@ function briefingRender(data) {
     isToday = false;
   }
 
-  if (isToday && window && window.start < now && now < window.end) window.start = now;
+  if (isToday && window && window.start < now && now < window.end) {
+    window = { ...window, start: now };
+  }
 
   const summary = briefingSummary(window, label);
   panel.className = `today-cim ${summary.className}`;
@@ -302,9 +332,23 @@ function briefingRender(data) {
 
   const badge = document.querySelector('#today-cim-badge');
   if (afterSunset && !isToday) {
-    badge.textContent = summary.className === 'good' ? 'AMANHÃ PROMETE' : summary.className === 'caution' ? 'BOA JANELA AMANHÃ' : summary.className === 'challenging' ? 'AMANHÃ EXIGE ATENÇÃO' : 'SEM JANELA AMANHÃ';
+    badge.textContent = summary.className === 'good'
+      ? 'AMANHÃ PROMETE'
+      : summary.className === 'caution'
+        ? 'BOA JANELA AMANHÃ'
+        : summary.className === 'challenging'
+          ? 'AMANHÃ EXIGE ATENÇÃO'
+          : 'SEM JANELA AMANHÃ';
   } else {
-    badge.textContent = beforeSunrise ? 'ANTES DO NASCER DO SOL' : summary.className === 'good' ? 'VALE APARECER' : summary.className === 'caution' ? 'BOA JANELA' : summary.className === 'challenging' ? 'MAIS EXIGENTE' : 'SEM JANELA';
+    badge.textContent = beforeSunrise
+      ? 'ANTES DO NASCER DO SOL'
+      : summary.className === 'good'
+        ? 'VALE APARECER'
+        : summary.className === 'caution'
+          ? 'BOA JANELA'
+          : summary.className === 'challenging'
+            ? 'MAIS EXIGENTE'
+            : 'SEM JANELA';
   }
 
   briefingRenderHours(document.querySelector('#today-cim-hours'), day.hours, day.sunset, now, isToday);
@@ -324,37 +368,36 @@ function briefingTextWithAttendance(text) {
   const afternoon = Number(document.querySelector('#attendance-afternoon')?.textContent) || 0;
   const social = `${total === 1 ? '1 sócio pretende ir' : `${total} sócios pretendem ir`} · Manhã ${morning} · Tarde ${afternoon}`;
   const url = 'https://detohiluy.github.io/clima-cim/';
+
   return text.includes(`\n${url}`)
     ? text.replace(`\n${url}`, `\n\n✈️ ${social}\n${url}`)
     : `${text}\n\n✈️ ${social}`;
 }
 
-async function briefingShare() {
+function briefingShare() {
   const text = briefingTextWithAttendance(briefingState.shareText);
   if (!text) return;
-  const button = document.querySelector('#today-cim-share');
-  try {
-    if (navigator.share) {
-      await navigator.share({ title: 'CIM — briefing de voo', text });
-      return;
-    }
-    await navigator.clipboard.writeText(text);
-    const original = button.textContent;
-    button.textContent = 'Texto copiado ✓';
-    setTimeout(() => { button.textContent = original; }, 2200);
-  } catch (error) {
-    if (error?.name !== 'AbortError') {
-      button.textContent = 'Não foi possível compartilhar';
-      setTimeout(() => { button.textContent = 'Compartilhar no CIM OFICIAL'; }, 2200);
-    }
-  }
+
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  if (!opened) window.location.href = whatsappUrl;
 }
 
 async function loadCimBriefing() {
   const panel = document.querySelector('#today-cim');
   if (!panel) return;
-  const hourly = ['wind_speed_10m','wind_direction_10m','wind_gusts_10m','precipitation_probability','precipitation','weather_code','visibility'];
-  const daily = ['sunrise','sunset'];
+
+  const hourly = [
+    'wind_speed_10m',
+    'wind_direction_10m',
+    'wind_gusts_10m',
+    'precipitation_probability',
+    'precipitation',
+    'weather_code',
+    'visibility'
+  ];
+  const daily = ['sunrise', 'sunset'];
+
   const params = new URLSearchParams({
     latitude: CIM_BRIEFING.lat,
     longitude: CIM_BRIEFING.lon,
@@ -365,6 +408,7 @@ async function loadCimBriefing() {
     wind_speed_unit: 'kmh',
     precipitation_unit: 'mm'
   });
+
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}&_=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -381,22 +425,37 @@ async function loadCimBriefing() {
   }
 }
 
+function replaceTextIfNeeded(element, nextText) {
+  if (element && element.textContent !== nextText) element.textContent = nextText;
+}
+
 function applyRunwayTerminology() {
   const preferred = document.querySelector('#preferred-runway');
-  const prefMatch = preferred?.textContent.match(/(?:pista|cabeceira)\s+(13|31)/i);
-  if (preferred && prefMatch) preferred.textContent = `Cabeceira preferencial: ${prefMatch[1]}`;
+  const prefMatch = preferred?.textContent.match(/(?:pista|cabeceira(?:\s+preferencial:)?)\s*(13|31)/i);
+  if (preferred && prefMatch) {
+    replaceTextIfNeeded(preferred, `Cabeceira preferencial: ${prefMatch[1]}`);
+  }
 
   const summary = document.querySelector('#runway-summary');
   if (summary) {
-    summary.textContent = summary.textContent.replace(/a pista (13|31) oferece/i, 'a cabeceira $1 da pista 13/31 oferece');
+    const next = summary.textContent.replace(
+      /a pista (13|31) oferece/i,
+      'a cabeceira $1 da pista 13/31 oferece'
+    );
+    replaceTextIfNeeded(summary, next);
   }
 
   document.querySelectorAll('.runway-wind-line span').forEach(span => {
-    span.textContent = span.textContent.replace(/Vento relativo à pista (13|31)/i, 'Vento relativo à cabeceira $1');
+    const next = span.textContent.replace(
+      /Vento relativo à pista (13|31)/i,
+      'Vento relativo à cabeceira $1'
+    );
+    replaceTextIfNeeded(span, next);
   });
 
   document.querySelectorAll('.forecast-wind').forEach(el => {
-    el.textContent = el.textContent.replace(/^P(13|31)\s*·/i, 'Cab. $1 ·');
+    const next = el.textContent.replace(/^P(13|31)\s*·/i, 'Cab. $1 ·');
+    replaceTextIfNeeded(el, next);
   });
 }
 
@@ -407,9 +466,24 @@ function watchRunwayTerminology() {
     document.querySelector('.runway-wind-line'),
     document.querySelector('#hourly-forecast')
   ].filter(Boolean);
+
   if (!targets.length || typeof MutationObserver !== 'function') return;
-  const observer = new MutationObserver(() => applyRunwayTerminology());
-  targets.forEach(target => observer.observe(target, { childList: true, subtree: true, characterData: true }));
+
+  const observer = new MutationObserver(() => {
+    observer.disconnect();
+    applyRunwayTerminology();
+    targets.forEach(target => observer.observe(target, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    }));
+  });
+
+  targets.forEach(target => observer.observe(target, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  }));
 }
 
 function loadAttendanceModule() {
