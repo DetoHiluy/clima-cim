@@ -1,0 +1,37 @@
+name: Patch cache turma
+
+on:
+  push:
+    branches:
+      - whatsapp-turma
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[skip cache]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: whatsapp-turma
+      - name: Atualizar versão do briefing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'briefing.js?v=20260908-4'
+          new = 'briefing.js?v=20260908-5'
+          if old not in s:
+              raise SystemExit('Versão esperada não encontrada')
+          p.write_text(s.replace(old, new))
+          PY
+      - name: Commitar cache
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Forçar cache novo da mensagem do WhatsApp [skip cache]"
+          git push origin HEAD:whatsapp-turma
