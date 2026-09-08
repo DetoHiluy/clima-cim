@@ -14,34 +14,40 @@ Este módulo sustenta o bloco social da home: **“X sócios pretendem ir ao CIM
 ## Arquivos
 
 - `cim-attendance-worker.js` — API do Cloudflare Worker.
-- `wrangler-attendance.jsonc` — configuração do Worker.
+- `wrangler-attendance.jsonc` — configuração do Worker e binding KV.
 - `../attendance.js` — componente da home e comunicação com a API.
 - `../attendance.css` — visual do componente.
 - `../data/attendance-config.json` — endereço público da API. Enquanto `api_base` estiver vazio, o componente não aparece.
+- `../.github/workflows/deploy-attendance.yml` — implantação e ativação automatizadas.
 
-## Implantação
+## Implantação recomendada
 
-1. Criar um namespace Workers KV, por exemplo `cim-attendance`.
-2. Copiar o ID do namespace para `wrangler-attendance.jsonc`, substituindo `REPLACE_WITH_KV_NAMESPACE_ID`.
-3. Definir `MEMBER_CODE` como **Worker Secret**; não colocar esse código no repositório.
-4. Implantar a partir da pasta `edge` com Wrangler 4:
+O fluxo de implantação foi preparado para o GitHub Actions. O Wrangler atual provisiona automaticamente o namespace KV no primeiro deploy porque o binding `ATTENDANCE` está declarado sem ID.
 
-```bash
-npx wrangler secret put MEMBER_CODE --config wrangler-attendance.jsonc
-npx wrangler deploy --config wrangler-attendance.jsonc
-```
+Configure estes três **Repository Secrets** no GitHub:
 
-5. Testar `/health`. O retorno deve indicar `member_validation: true`.
-6. Colocar a URL HTTPS do Worker em `data/attendance-config.json`, por exemplo:
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `CIM_MEMBER_CODE`
 
-```json
-{
-  "api_base": "https://cim-attendance-api.exemplo.workers.dev"
-}
-```
+O `CIM_MEMBER_CODE` é um código compartilhado pelos sócios para a primeira confirmação de presença no aparelho. Ele nunca deve ser gravado no repositório.
 
-Ao publicar esse último ajuste, o módulo passa a aparecer automaticamente na home.
+Depois, execute manualmente o workflow **“Implantar presença CIM”**. Ele:
+
+1. verifica se os três secrets estão configurados;
+2. implanta `cim-attendance-api` no Cloudflare Workers;
+3. provisiona automaticamente o KV `ATTENDANCE` no primeiro deploy;
+4. envia `MEMBER_CODE` como segredo do Worker, junto do deploy;
+5. testa o endpoint `/health`;
+6. identifica a URL `workers.dev` publicada;
+7. grava essa URL em `data/attendance-config.json`;
+8. grava no repositório o ID do KV que o Wrangler provisionar;
+9. faz commit em `main`, o que ativa automaticamente o módulo social no GitHub Pages.
+
+Se os secrets ainda não estiverem configurados, o workflow termina sem implantar nada e sem quebrar a publicação do site.
 
 ## Observação sobre o contador
 
-A validação por código compartilhado restringe a confirmação ao grupo que conhece o código do clube, mas não constitui autenticação individual. Nesta primeira versão, um mesmo sócio usando navegadores ou aparelhos diferentes pode gerar mais de uma confirmação. Se o CIM quiser precisão individual absoluta, a próxima evolução deve usar credencial individual de associado.
+A validação por código compartilhado restringe a confirmação ao grupo que conhece o código do clube, mas não constitui autenticação individual. Nesta primeira versão, um mesmo sócio usando navegadores ou aparelhos diferentes pode gerar mais de uma confirmação.
+
+Workers KV é distribuído e pode levar alguns segundos para refletir o mesmo agregado em todas as regiões. Para a finalidade **“quem pretende ir hoje”**, essa pequena defasagem é aceitável. Para uma futura métrica **“quantos sócios estão no CIM agora”**, a fonte adequada deve ser presença real do campo — por exemplo, Home Assistant — e não este contador de intenção.
