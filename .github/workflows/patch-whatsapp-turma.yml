@@ -1,0 +1,36 @@
+name: Patch WhatsApp turma
+
+on:
+  push:
+    branches:
+      - whatsapp-turma
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[skip patch]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: whatsapp-turma
+      - name: Trocar Sócios por Turma
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('briefing.js')
+          s = p.read_text()
+          s2 = s.replace('Sócios, vamos ao CIM', 'Turma, vamos ao CIM')
+          if s2 == s:
+              raise SystemExit('Texto alvo não encontrado')
+          p.write_text(s2)
+          PY
+      - name: Commitar ajuste
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add briefing.js
+          git commit -m "Trocar Sócios por Turma no WhatsApp [skip patch]"
+          git push origin HEAD:whatsapp-turma
