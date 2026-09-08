@@ -255,14 +255,14 @@ function briefingSummary(window, label) {
 
 function briefingWhatsappInvite(window, dayWord) {
   if (!window) {
-    return `Sócios, vamos ao CIM ${dayWord}! Se o tempo não deixar voar, vai dar muito papo e resenha. O importante é a turma se encontrar no clube. ✈️`;
+    return `Turma, vamos ao CIM ${dayWord}! Se o tempo não deixar voar, vai dar muito papo e resenha. O importante é a turma se encontrar no clube. ✈️`;
   }
 
   if (window.level === 'challenging') {
-    return `Sócios, vamos ao CIM ${dayWord}! O voo pode exigir mais atenção, mas o encontro da turma continua valendo. Se não der voo, vai dar muito papo e resenha. ✈️`;
+    return `Turma, vamos ao CIM ${dayWord}! O voo pode exigir mais atenção, mas o encontro da turma continua valendo. Se não der voo, vai dar muito papo e resenha. ✈️`;
   }
 
-  return `Sócios, vamos ao CIM ${dayWord}! Se der voo, ótimo. Se não der, vai dar muito papo e resenha. O importante é a turma estar no clube. ✈️`;
+  return `Turma, vamos ao CIM ${dayWord}! Se der voo, ótimo. Se não der, vai dar muito papo e resenha. O importante é a turma estar no clube. ✈️`;
 }
 
 function briefingShareText(summary, window, day, label) {
