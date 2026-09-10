@@ -1,8 +1,74 @@
 (() => {
   'use strict';
 
-  // O compartilhamento público do site não pode ser condicionado à agenda editorial.
-  // Quinta/sexta/sábado/domingo são regras de comunicação do grupo, não regras do botão.
-  // O botão é tratado pelo share-editorial.js e deve refletir as condições relevantes
-  // do momento em que qualquer visitante decidir compartilhar.
+  const SITE_URL = 'https://detohiluy.github.io/clima-cim/';
+
+  function text(selector) {
+    return document.querySelector(selector)?.textContent?.trim() || '';
+  }
+
+  function useful(value) {
+    return value && !/^(--|aguarde|calculando|carregando|consultando)/i.test(value);
+  }
+
+  function buildCurrentMessage() {
+    const weather = text('#weather-description');
+    const temperature = text('#temperature');
+    const windSpeed = text('#wind-speed');
+    const windDirection = text('#wind-direction-text');
+    const gust = text('#wind-gust');
+    const rain = text('#rain-probability');
+    const rainNext = text('#rain-total');
+    const runway = text('#preferred-runway');
+    const status = text('#status-word');
+    const updated = text('#updated-at');
+
+    const lines = ['✈️ CIM — condições agora'];
+
+    if (useful(weather) || useful(temperature)) {
+      lines.push(`🌦️ ${[weather, temperature].filter(useful).join(' · ')}`);
+    }
+
+    const windParts = [];
+    if (useful(windSpeed)) windParts.push(`vento ${windSpeed} km/h`);
+    if (useful(windDirection)) windParts.push(windDirection);
+    if (useful(gust)) windParts.push(`rajadas ${gust}`);
+    if (windParts.length) lines.push(`💨 ${windParts.join(' · ')}`);
+
+    if (useful(runway)) lines.push(`🛬 ${runway}`);
+
+    const rainParts = [];
+    if (useful(rain)) rainParts.push(`precipitação ${rain}`);
+    if (useful(rainNext)) rainParts.push(rainNext);
+    if (rainParts.length) lines.push(`🌧️ ${rainParts.join(' · ')}`);
+
+    if (useful(status)) lines.push(`⚠️ Avaliação do painel: ${status}`);
+    if (useful(updated)) lines.push(`🕒 ${updated}`);
+
+    lines.push(
+      '',
+      'Dados do painel meteorológico do CIM. Confirme sempre a biruta, o céu e as condições reais no campo antes de voar.',
+      SITE_URL
+    );
+
+    return lines.join('\n');
+  }
+
+  function shareCurrent(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const message = buildCurrentMessage();
+    window.location.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  }
+
+  const button = document.querySelector('#today-cim-share');
+  if (!button) return;
+
+  button.textContent = 'Compartilhar condições de agora';
+  button.setAttribute('aria-label', 'Compartilhar no WhatsApp as condições atuais do CIM');
+
+  // O botão público é sempre factual e imediato. A agenda editorial do grupo
+  // existe fora deste fluxo e nunca condiciona o que um visitante pode compartilhar.
+  button.addEventListener('click', shareCurrent, true);
 })();
