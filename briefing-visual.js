@@ -4,7 +4,7 @@
   const W=1080,H=1350,TZ='America/Fortaleza';
   const LOGO='assets/cim-logo-oficial.webp?v=20260910-1';
   const SITE='detohiluy.github.io/clima-cim';
-  const RWY={13:109.8,31:289.8}, SNAP='cim_pulse_snapshot_v1';
+  const RWY={13:109.8,31:289.8}, SNAP='cim_briefing_visual_snapshot_v1';
   let activeUrl='';
 
   const $=s=>document.querySelector(s);
@@ -92,7 +92,6 @@
   }
   function runway(d){
     const cx=540,cy=650,half=198;
-    // As designações ficam nas cabeceiras físicas: 13 no extremo oposto ao rumo 13 e 31 no oposto ao rumo 31.
     const p13=point(half,RWY[31]),p31=point(half,RWY[13]),l13=point(half+42,RWY[31]),l31=point(half+42,RWY[13]);
     const wf=Number.isFinite(d.dir)?point(285,d.dir):null,wt=Number.isFinite(d.dir)?point(238,(d.dir+180)%360):null;
     return`<g>
@@ -135,13 +134,13 @@
       <radialGradient id="halo"><stop offset="0" stop-color="#61c9f2" stop-opacity=".18"/><stop offset=".48" stop-color="#2b84ad" stop-opacity=".08"/><stop offset="1" stop-color="#071725" stop-opacity="0"/></radialGradient>
       <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#67cdf4"/></marker>
       <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}.micro{fill:#8fb4c8;font-size:17px;font-weight:800;letter-spacing:2.4px}.bright{fill:#bfeaff}.section{fill:#65c9f1;font-size:19px;font-weight:900;letter-spacing:2.8px}.big{fill:#fff;font-size:74px;font-weight:900;letter-spacing:-2px}.metric{fill:#fff;font-size:42px;font-weight:850}.metric-label{fill:#86aabd;font-size:16px;font-weight:700;letter-spacing:1.6px}.small{fill:#97b4c4;font-size:16px;font-weight:600}.hour{fill:#fff;font-size:25px;font-weight:850}.runway-no{fill:#8eafbf;font-size:31px;font-weight:900}.runway-no.preferred{fill:#fff;filter:url(#glow)}</style>
+      <style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}.micro{fill:#8fb4c8;font-size:17px;font-weight:800;letter-spacing:2.4px}.bright{fill:#bfeaff}.section{fill:#65c9f1;font-size:19px;font-weight:900;letter-spacing:2.8px}.big{fill:#fff;font-size:60px;font-weight:900;letter-spacing:-1px}.metric{fill:#fff;font-size:42px;font-weight:850}.metric-label{fill:#86aabd;font-size:16px;font-weight:700;letter-spacing:1.6px}.small{fill:#97b4c4;font-size:16px;font-weight:600}.hour{fill:#fff;font-size:25px;font-weight:850}.runway-no{fill:#8eafbf;font-size:31px;font-weight:900}.runway-no.preferred{fill:#fff;filter:url(#glow)}</style>
     </defs>
     <rect width="${W}" height="${H}" fill="url(#space)"/><circle cx="540" cy="650" r="${halo}" fill="url(#halo)"/>${flow(d)}${rain(d)}
     <rect x="48" y="44" width="312" height="122" rx="26" fill="#fff" fill-opacity=".97"/><image href="${logo}" x="66" y="56" width="276" height="96" preserveAspectRatio="xMidYMid meet"/>
     <text x="1018" y="67" text-anchor="end" class="micro">${esc(d.weekday)}</text><text x="1018" y="97" text-anchor="end" fill="#fff" font-size="27" font-weight="900">${esc(d.date)}</text><text x="1018" y="126" text-anchor="end" class="small">ATUALIZADO ${esc(d.time)}</text>
-    <text x="48" y="244" class="micro bright">CIM // METEOROLOGIA EM MOVIMENTO</text><text x="48" y="320" class="big">PULSE</text><text x="48" y="356" class="small">Uma leitura visual do instante no campo.</text>
-    <g transform="translate(48 405)"><text class="section">SINAL</text>
+    <text x="48" y="244" class="micro bright">CIM // CONDIÇÕES AGORA</text><text x="48" y="320" class="big">BRIEFING VISUAL</text><text x="48" y="356" class="small">Leitura visual das condições meteorológicas no campo.</text>
+    <g transform="translate(48 405)"><text class="section">CONDIÇÕES</text>
       <text x="0" y="58" class="metric">${fmt(d.wind)}</text><text x="0" y="84" class="metric-label">VENTO · KM/H</text>
       <text x="188" y="58" class="metric">${fmt(d.gust)}</text><text x="188" y="84" class="metric-label">RAJADA · KM/H</text>
       <text x="378" y="58" class="metric">${fmt(d.rain,'',1)}</text><text x="378" y="84" class="metric-label">CHUVA · MM</text>
@@ -161,25 +160,25 @@
     try{const img=await new Promise((ok,fail)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=fail;i.src=u});const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(img,0,0,W,H);return await new Promise(ok=>c.toBlob(ok,'image/png',.96))}finally{URL.revokeObjectURL(u)}
   }
   function ui(){
-    if($('#cim-pulse-overlay'))return;
-    const style=document.createElement('style');style.textContent='.cim-pulse-overlay{position:fixed;inset:0;background:rgba(1,8,13,.9);backdrop-filter:blur(18px);z-index:9999;display:none;align-items:center;justify-content:center;padding:24px}.cim-pulse-overlay.open{display:flex}.cim-pulse-shell{width:min(94vw,620px);max-height:94vh;display:flex;flex-direction:column;gap:14px}.cim-pulse-preview{background:#020b12;border:1px solid rgba(104,203,244,.28);border-radius:22px;overflow:auto;box-shadow:0 28px 90px rgba(0,0,0,.45)}.cim-pulse-preview img{display:block;width:100%;height:auto}.cim-pulse-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.cim-pulse-actions button{border:0;border-radius:999px;padding:12px 18px;font:700 14px system-ui;cursor:pointer}.cim-pulse-primary{background:#67cdf4;color:#02111b}.cim-pulse-secondary{background:#173042;color:#e8f5fb}@media(max-width:600px){.cim-pulse-overlay{padding:10px}.cim-pulse-shell{width:100%;max-height:98vh}.cim-pulse-actions{justify-content:stretch}.cim-pulse-actions button{flex:1}}';document.head.appendChild(style);
-    const o=document.createElement('div');o.id='cim-pulse-overlay';o.className='cim-pulse-overlay';o.innerHTML='<div class="cim-pulse-shell" role="dialog" aria-modal="true" aria-label="Prévia CIM Pulse"><div class="cim-pulse-preview"><img id="cim-pulse-preview-image" alt="CIM Pulse meteorológico"></div><div class="cim-pulse-actions"><button id="cim-pulse-close" class="cim-pulse-secondary">Fechar</button><button id="cim-pulse-save" class="cim-pulse-secondary">Salvar PNG</button><button id="cim-pulse-share" class="cim-pulse-primary">Compartilhar</button></div></div>';document.body.appendChild(o);$('#cim-pulse-close').onclick=()=>o.classList.remove('open');o.onclick=e=>{if(e.target===o)o.classList.remove('open')};
+    if($('#cim-briefing-overlay'))return;
+    const style=document.createElement('style');style.textContent='.cim-briefing-overlay{position:fixed;inset:0;background:rgba(1,8,13,.9);backdrop-filter:blur(18px);z-index:9999;display:none;align-items:center;justify-content:center;padding:24px}.cim-briefing-overlay.open{display:flex}.cim-briefing-shell{width:min(94vw,620px);max-height:94vh;display:flex;flex-direction:column;gap:14px}.cim-briefing-preview{background:#020b12;border:1px solid rgba(104,203,244,.28);border-radius:22px;overflow:auto;box-shadow:0 28px 90px rgba(0,0,0,.45)}.cim-briefing-preview img{display:block;width:100%;height:auto}.cim-briefing-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.cim-briefing-actions button{border:0;border-radius:999px;padding:12px 18px;font:700 14px system-ui;cursor:pointer}.cim-briefing-primary{background:#67cdf4;color:#02111b}.cim-briefing-secondary{background:#173042;color:#e8f5fb}@media(max-width:600px){.cim-briefing-overlay{padding:10px}.cim-briefing-shell{width:100%;max-height:98vh}.cim-briefing-actions{justify-content:stretch}.cim-briefing-actions button{flex:1}}';document.head.appendChild(style);
+    const o=document.createElement('div');o.id='cim-briefing-overlay';o.className='cim-briefing-overlay';o.innerHTML='<div class="cim-briefing-shell" role="dialog" aria-modal="true" aria-label="Prévia do briefing visual do CIM"><div class="cim-briefing-preview"><img id="cim-briefing-preview-image" alt="Briefing visual meteorológico do CIM"></div><div class="cim-briefing-actions"><button id="cim-briefing-close" class="cim-briefing-secondary">Fechar</button><button id="cim-briefing-save" class="cim-briefing-secondary">Salvar PNG</button><button id="cim-briefing-share" class="cim-briefing-primary">Compartilhar</button></div></div>';document.body.appendChild(o);$('#cim-briefing-close').onclick=()=>o.classList.remove('open');o.onclick=e=>{if(e.target===o)o.classList.remove('open')};
   }
   async function show(){
-    const b=$('#today-cim-pulse'),old=b?.textContent||'Gerar CIM Pulse';if(b){b.disabled=true;b.textContent='Construindo Pulse…'}
+    const b=$('#today-cim-briefing-visual'),old=b?.textContent||'Gerar briefing visual';if(b){b.disabled=true;b.textContent='Gerando briefing…'}
     try{
       const d=collect();if(!Number.isFinite(d.wind)||!Number.isFinite(d.dir)||!Number.isFinite(d.temp))throw new Error('dados ainda não carregados');
       const mark=svg(d,await dataUrl(LOGO),loadSnap()),blob=await png(mark);if(!blob)throw new Error('PNG vazio');
       if(activeUrl)URL.revokeObjectURL(activeUrl);activeUrl=URL.createObjectURL(blob);
-      const file=new File([blob],`cim-pulse-${new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date())}.png`,{type:'image/png'});
-      ui();$('#cim-pulse-preview-image').src=activeUrl;$('#cim-pulse-overlay').classList.add('open');
-      $('#cim-pulse-share').onclick=async()=>{try{if(navigator.share&&navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:'CIM Pulse'});else{const a=document.createElement('a');a.href=activeUrl;a.download=file.name;a.click()}}finally{saveSnap(d)}};
-      $('#cim-pulse-save').onclick=()=>{const a=document.createElement('a');a.href=activeUrl;a.download=file.name;a.click();saveSnap(d)};
-    }catch(e){console.error('[CIM Pulse]',e);alert('Não foi possível gerar o CIM Pulse agora. Aguarde os dados do painel e tente novamente.')}finally{if(b){b.disabled=false;b.textContent=old}}
+      const file=new File([blob],`cim-briefing-${new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date())}.png`,{type:'image/png'});
+      ui();$('#cim-briefing-preview-image').src=activeUrl;$('#cim-briefing-overlay').classList.add('open');
+      $('#cim-briefing-share').onclick=async()=>{try{if(navigator.share&&navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:'Briefing visual do CIM'});else{const a=document.createElement('a');a.href=activeUrl;a.download=file.name;a.click()}}finally{saveSnap(d)}};
+      $('#cim-briefing-save').onclick=()=>{const a=document.createElement('a');a.href=activeUrl;a.download=file.name;a.click();saveSnap(d)};
+    }catch(e){console.error('[Briefing visual CIM]',e);alert('Não foi possível gerar o briefing visual agora. Aguarde os dados do painel e tente novamente.')}finally{if(b){b.disabled=false;b.textContent=old}}
   }
   function install(){
-    const s=$('#today-cim-share');if(!s||$('#today-cim-pulse'))return;
-    const b=document.createElement('button');b.id='today-cim-pulse';b.className='today-cim-share';b.type='button';b.textContent='Gerar CIM Pulse';b.setAttribute('aria-label','Gerar visual meteorológico CIM Pulse');s.insertAdjacentElement('afterend',b);b.onclick=show;
+    const s=$('#today-cim-share');if(!s||$('#today-cim-briefing-visual'))return;
+    const b=document.createElement('button');b.id='today-cim-briefing-visual';b.className='today-cim-share';b.type='button';b.textContent='Gerar briefing visual';b.setAttribute('aria-label','Gerar briefing visual meteorológico do CIM');s.insertAdjacentElement('afterend',b);b.onclick=show;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
