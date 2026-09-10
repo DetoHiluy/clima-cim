@@ -187,5 +187,15 @@
   <script src="briefing.js?v=20260908-5"></script>
   <script src="weekend-share.js?v=20260910-2"></script>
   <script src="share-editorial.js?v=20260908-1"></script>
+  <script src="cim-pulse.js?v=20260910-5"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector('#today-cim-pulse');
+      if (button) {
+        button.textContent = 'Gerar briefing visual';
+        button.setAttribute('aria-label', 'Gerar briefing visual do CIM');
+      }
+    });
+  </script>
 </body>
 </html>
