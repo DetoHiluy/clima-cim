@@ -35,15 +35,34 @@
     return { weekday, date: `${day} DE ${month} DE ${year}`, time };
   }
 
-  function nextHours() {
+  function daylightForecast() {
     try {
-      if (typeof briefingState === 'undefined' || !briefingState.lastData || typeof briefingBuildHours !== 'function') return [];
-      return briefingBuildHours(briefingState.lastData, 0, new Date()).hours.slice(0, 4).map((h) => ({
-        time: typeof briefingHour === 'function' ? briefingHour(h.time) : '—',
-        wind: +h.windSpeed || 0,
-        gust: +h.gust || 0,
-        precip: +h.precip || 0
-      }));
+      if (typeof briefingState === 'undefined' || !briefingState.lastData || typeof briefingDate !== 'function' || typeof briefingDayKey !== 'function') return [];
+      const data = briefingState.lastData;
+      const hourly = data.hourly;
+      const daily = data.daily;
+      const offset = data.utc_offset_seconds || 0;
+      if (!hourly?.time?.length || !daily?.time?.length) return [];
+
+      const sunrise = briefingDate(daily.sunrise?.[0], offset);
+      const sunset = briefingDate(daily.sunset?.[0], offset);
+      const dayKey = daily.time[0];
+      if (!sunrise || !sunset) return [];
+
+      const result = [];
+      for (let i = 0; i < hourly.time.length; i++) {
+        const time = briefingDate(hourly.time[i], offset);
+        if (!time || briefingDayKey(time) !== dayKey || time < sunrise || time >= sunset) continue;
+        result.push({
+          time: typeof briefingHour === 'function' ? briefingHour(time) : '—',
+          temp: Number(hourly.temperature_2m?.[i]),
+          wind: Number(hourly.wind_speed_10m?.[i]),
+          gust: Number(hourly.wind_gusts_10m?.[i]),
+          pop: Number(hourly.precipitation_probability?.[i]),
+          precip: Number(hourly.precipitation?.[i])
+        });
+      }
+      return result.slice(0, 12);
     } catch (_) {
       return [];
     }
@@ -65,7 +84,7 @@
       cardinal: cardinal(dir),
       sunrise: text('#sunrise').replace(/^Nascer\s*/i, '') || '—',
       sunset: text('#sunset') || '—',
-      hours: nextHours()
+      hours: daylightForecast()
     };
   }
 
@@ -95,15 +114,25 @@
   }
 
   function hoursBlock(d) {
-    const data = d.hours.length ? d.hours : [{},{},{},{}];
-    const xs = [88, 328, 568, 808];
-    return data.slice(0, 4).map((h, i) => `<g transform="translate(${xs[i]} 0)">
-      ${i ? '<line x1="-32" y1="1113" x2="-32" y2="1248" stroke="#79bedb" stroke-opacity=".55"/>' : ''}
-      <text y="1142" class="hourTime">${esc(h.time || '—')}</text>
-      <text y="1184" class="hourWind">${fmt(h.wind)}</text><text x="78" y="1184" class="hourUnit">KM/H</text>
-      <text y="1219" class="hourDetail">Raj. ${fmt(h.gust)} KM/H</text>
-      <text y="1253" class="hourDetail">Chuva ${fmt(h.precip, ' mm', 1)}</text>
-    </g>`).join('');
+    const data = d.hours.length ? d.hours : Array.from({ length: 12 }, () => ({}));
+    const left = 62;
+    const top = 1117;
+    const colW = 160;
+    const rowH = 76;
+    return data.slice(0, 12).map((h, i) => {
+      const col = i % 6;
+      const row = Math.floor(i / 6);
+      const x = left + col * colW;
+      const y = top + row * rowH;
+      const divider = col ? `<line x1="${x - 18}" y1="${y - 12}" x2="${x - 18}" y2="${y + 54}" stroke="#79bedb" stroke-opacity=".42"/>` : '';
+      return `${divider}<g transform="translate(${x} ${y})">
+        <text x="0" y="0" class="hourTimeSmall">${esc(h.time || '—')}</text>
+        <text x="58" y="0" class="hourTemp">${fmt(h.temp, '°')}</text>
+        <text x="0" y="25" class="hourWindSmall">${fmt(h.wind)} km/h</text>
+        <text x="0" y="47" class="hourDetailSmall">Raj ${fmt(h.gust)} · Ch ${fmt(h.precip, ' mm', 1)}</text>
+        <text x="0" y="66" class="hourPop">${fmt(h.pop, '%')} chuva</text>
+      </g>`;
+    }).join('');
   }
 
   function windIcon(scale = 1) {
@@ -140,7 +169,7 @@
         <radialGradient id="warm" cx="70%" cy="35%" r="60%"><stop offset="0" stop-color="#ff9e2b" stop-opacity=".22"/><stop offset="1" stop-color="#ff9e2b" stop-opacity="0"/></radialGradient>
         <filter id="logoShadow"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity=".42"/></filter>
         <style>
-          text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}.kicker{fill:#fff;font-size:22px;font-weight:800;letter-spacing:6px}.condition{fill:#fff;font-size:84px;font-weight:950;letter-spacing:-3px}.windMain{fill:#fff;font-size:150px;font-weight:950;letter-spacing:-8px}.windUnit{fill:#fff;font-size:46px;font-weight:950}.windDir{fill:#fff;font-size:32px;font-weight:900}.gust{fill:#6dd0fa;font-size:30px;font-weight:950}.meta{fill:#fff;font-size:18px;font-weight:720;letter-spacing:1px}.date1{fill:#fff;font-size:24px;font-weight:850}.date2{fill:#fff;font-size:19px;font-weight:900}.date3{fill:#d9e6ed;font-size:16px}.metricV{fill:#fff;font-size:38px;font-weight:950}.metricL{fill:#fff;font-size:18px;font-weight:500}.section{fill:#fff;font-size:16px;font-weight:700;letter-spacing:4px}.sunTime{fill:#fff;font-size:27px;font-weight:950}.sunLabel{fill:#d2dce2;font-size:17px}.now{fill:#fff;font-size:17px;font-weight:850}.hourTitle{fill:#fff;font-size:18px;font-weight:750;letter-spacing:5px}.hourTime{fill:#55c8f7;font-size:28px;font-weight:950}.hourWind{fill:#fff;font-size:36px;font-weight:950}.hourUnit{fill:#fff;font-size:18px;font-weight:900}.hourDetail{fill:#fff;font-size:18px}.footer{fill:#dbe5ea;font-size:14px;font-weight:550}
+          text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}.kicker{fill:#fff;font-size:22px;font-weight:800;letter-spacing:6px}.condition{fill:#fff;font-size:84px;font-weight:950;letter-spacing:-3px}.windMain{fill:#fff;font-size:150px;font-weight:950;letter-spacing:-8px}.windUnit{fill:#fff;font-size:46px;font-weight:950}.windDir{fill:#fff;font-size:32px;font-weight:900}.gust{fill:#6dd0fa;font-size:30px;font-weight:950}.meta{fill:#fff;font-size:18px;font-weight:720;letter-spacing:1px}.date1{fill:#fff;font-size:24px;font-weight:850}.date2{fill:#fff;font-size:19px;font-weight:900}.date3{fill:#d9e6ed;font-size:16px}.metricV{fill:#fff;font-size:38px;font-weight:950}.metricL{fill:#fff;font-size:18px;font-weight:500}.section{fill:#fff;font-size:16px;font-weight:700;letter-spacing:4px}.sunTime{fill:#fff;font-size:27px;font-weight:950}.sunLabel{fill:#d2dce2;font-size:17px}.now{fill:#fff;font-size:17px;font-weight:850}.hourTitle{fill:#fff;font-size:18px;font-weight:750;letter-spacing:4px}.hourTimeSmall{fill:#55c8f7;font-size:19px;font-weight:950}.hourTemp{fill:#fff;font-size:19px;font-weight:950}.hourWindSmall{fill:#fff;font-size:15px;font-weight:800}.hourDetailSmall{fill:#fff;font-size:13px;font-weight:650}.hourPop{fill:#8ec4db;font-size:12px;font-weight:700}.footer{fill:#dbe5ea;font-size:14px;font-weight:550}
         </style>
       </defs>
       <image href="${photo}" x="0" y="0" width="1080" height="1350" preserveAspectRatio="xMidYMid slice"/>
@@ -165,7 +194,7 @@
         <g transform="translate(830 826)">${eyeIcon(.88)}</g><text x="902" y="850" class="metricV">${fmt(d.visibility,' km')}</text><text x="902" y="884" class="metricL">Visibilidade</text>
       </g>
       ${daylight(d)}
-      <g><rect x="34" y="1055" width="1012" height="229" rx="20" fill="#021a2a" fill-opacity=".95" stroke="#25afe7" stroke-width="1.4"/><text x="64" y="1091" class="hourTitle">PRÓXIMAS HORAS</text><line x1="64" y1="1107" x2="178" y2="1107" stroke="#34c1f5" stroke-width="5" stroke-linecap="round"/>${hoursBlock(d)}</g>
+      <g><rect x="34" y="1055" width="1012" height="229" rx="20" fill="#021a2a" fill-opacity=".95" stroke="#25afe7" stroke-width="1.4"/><text x="64" y="1087" class="hourTitle">PREVISÃO DO PERÍODO DIURNO</text><line x1="64" y1="1102" x2="208" y2="1102" stroke="#34c1f5" stroke-width="5" stroke-linecap="round"/><line x1="58" y1="1191" x2="1022" y2="1191" stroke="#79bedb" stroke-opacity=".28"/>${hoursBlock(d)}</g>
       <line x1="160" y1="1316" x2="260" y2="1316" stroke="#fff" stroke-opacity=".66"/><text x="540" y="1323" text-anchor="middle" class="footer">MODELO NAS COORDENADAS DO CIM · METAR SBFZ É REFERÊNCIA REGIONAL</text><line x1="820" y1="1316" x2="920" y2="1316" stroke="#fff" stroke-opacity=".66"/>
     </svg>`;
   }
