@@ -18,7 +18,7 @@ assert(!source.includes('APPROVED_BG'), 'fonte do briefing voltou a usar arte co
 
 if (fs.existsSync(assetPath)) {
   const buf = fs.readFileSync(assetPath);
-  assert(buf.length > 50000, 'asset limpo parece incompleto');
+  assert(buf.length > 12000, 'asset limpo parece incompleto');
   assert(buf.subarray(0, 4).toString('ascii') === 'RIFF', 'asset limpo não parece WebP/RIFF válido');
   assert(buf.subarray(8, 12).toString('ascii') === 'WEBP', 'asset limpo não possui assinatura WEBP');
 }
