@@ -19,3 +19,6 @@ jobs:
 
       - name: Validar geometria do briefing visual
         run: node scripts/validar-briefing-layout.mjs
+
+      - name: Validar fonte visual única do briefing
+        run: node scripts/validar-briefing-source.mjs
