@@ -255,3 +255,5 @@
     button.addEventListener('click', shareEditorial, true);
   }
 })();
+
+import('./cim-pulse.js?v=20260910-1').catch(error => console.error('[CIM Pulse loader]', error));
