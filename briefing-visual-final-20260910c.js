@@ -5,7 +5,7 @@
   const H = 1480;
   const TZ = 'America/Fortaleza';
   const LOGO = 'assets/cim-logo-oficial.webp?v=20260910-1';
-  const PHOTO = 'assets/cim-pista-hero.webp?v=20260901-final1';
+  const PHOTO = 'assets/cim-briefing-hero-clean.webp?v=20260910-clean2';
   const CIM = { lat: -3.845481, lon: -38.460447 };
   let activeUrl = '';
 
@@ -24,7 +24,7 @@
     const { hero, leftMask, date, metrics, daylight, forecast, forecastGrid: g, footerY } = LAYOUT;
     const fail = (m) => { throw new Error(`[Briefing CIM] layout inválido: ${m}`); };
     if (hero.y !== 0 || hero.x !== 0 || hero.w !== W || hero.h > 760) fail('recorte do hero fora do limite seguro');
-    if (leftMask.w < 600 || leftMask.h < hero.h) fail('máscara esquerda insuficiente para ocultar o fundo contaminado');
+    if (leftMask.w < 600 || leftMask.h < hero.h) fail('máscara esquerda insuficiente para contraste do texto');
     if (date.x < 630 || date.x + date.w > W - 40 || date.y < 20 || date.y + date.h > 200) fail('caixa de data fora da área segura');
     if (date.textX + date.textW > date.x + date.w - 20) fail('texto da data ultrapassa a margem interna');
     if (metrics.y + metrics.h >= daylight.y) fail('métricas invadem período diurno');
