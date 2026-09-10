@@ -20,7 +20,6 @@
     const rain = text('#rain-probability');
     const rainNext = text('#rain-total');
     const runway = text('#preferred-runway');
-    const status = text('#status-word');
     const updated = text('#updated-at');
 
     const lines = ['✈️ CIM — condições agora'];
@@ -42,7 +41,6 @@
     if (useful(rainNext)) rainParts.push(rainNext);
     if (rainParts.length) lines.push(`🌧️ ${rainParts.join(' · ')}`);
 
-    if (useful(status)) lines.push(`⚠️ Avaliação do painel: ${status}`);
     if (useful(updated)) lines.push(`🕒 ${updated}`);
 
     lines.push(
@@ -68,7 +66,8 @@
   button.textContent = 'Compartilhar condições de agora';
   button.setAttribute('aria-label', 'Compartilhar no WhatsApp as condições atuais do CIM');
 
-  // O botão público é sempre factual e imediato. A agenda editorial do grupo
-  // existe fora deste fluxo e nunca condiciona o que um visitante pode compartilhar.
+  // O botão público compartilha apenas dados objetivos. A avaliação FAVORÁVEL /
+  // ATENÇÃO / DESAFIADOR / DESFAVORÁVEL permanece visível no site, mas não é
+  // enviada pelo WhatsApp: o destinatário faz seu próprio julgamento.
   button.addEventListener('click', shareCurrent, true);
 })();
