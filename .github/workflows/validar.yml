@@ -16,3 +16,6 @@ jobs:
 
       - name: Rodar validações estáticas
         run: node scripts/validar.mjs
+
+      - name: Validar geometria do briefing visual
+        run: node scripts/validar-briefing-layout.mjs
