@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const CLEAN_BRIEFING_PHOTO = 'assets/cim-briefing-hero-clean.webp?v=20260910-clean1';
+  // Uma única fotografia limpa alimenta o briefing visual.
+  // Este redirecionamento existe apenas para isolar a foto do briefing da foto usada no cabeçalho do site.
+  const CLEAN_BRIEFING_PHOTO = 'assets/cim-briefing-hero-clean.webp?v=20260910-clean2';
   const nativeFetch = window.fetch.bind(window);
 
   window.fetch = function(input, init) {
