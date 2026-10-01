@@ -1,21 +1,21 @@
 {
   "station": "SBFZ",
   "source": "aviationweather.gov",
-  "fetched_at": "2026-10-01T02:02:58.682844Z",
+  "fetched_at": "2026-10-01T08:46:08.215154Z",
   "metar": {
     "icaoId": "SBFZ",
-    "receiptTime": "2026-10-01T01:51:23.657Z",
-    "obsTime": 1790820000,
-    "reportTime": "2026-10-01T02:00:00.000Z",
+    "receiptTime": "2026-10-01T07:53:40.090Z",
+    "obsTime": 1790841600,
+    "reportTime": "2026-10-01T08:00:00.000Z",
     "temp": 27,
     "dewp": 24,
     "wdir": 80,
-    "wspd": 12,
+    "wspd": 9,
     "visib": "6+",
-    "altim": 1014,
+    "altim": 1012,
     "qcField": 0,
     "metarType": "METAR",
-    "rawOb": "METAR SBFZ 010200Z 08012KT 9999 BKN018 27/24 Q1014",
+    "rawOb": "METAR SBFZ 010800Z 08009KT 9999 BKN017 27/24 Q1012",
     "lat": -3.776,
     "lon": -38.533,
     "elev": 32,
@@ -24,7 +24,7 @@
     "clouds": [
       {
         "cover": "BKN",
-        "base": 1800
+        "base": 1700
       }
     ],
     "fltCat": "MVFR"
