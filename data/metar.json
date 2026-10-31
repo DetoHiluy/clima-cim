@@ -1,30 +1,30 @@
 {
   "station": "SBFZ",
   "source": "aviationweather.gov",
-  "fetched_at": "2026-10-31T08:47:20.616144Z",
+  "fetched_at": "2026-10-31T14:49:56.306639Z",
   "metar": {
     "icaoId": "SBFZ",
-    "receiptTime": "2026-10-31T07:52:07.224Z",
-    "obsTime": 1793433600,
-    "reportTime": "2026-10-31T08:00:00.000Z",
-    "temp": 26,
-    "dewp": 23,
-    "wdir": 110,
-    "wspd": 7,
+    "receiptTime": "2026-10-31T13:51:20.594Z",
+    "obsTime": 1793455200,
+    "reportTime": "2026-10-31T14:00:00.000Z",
+    "temp": 31,
+    "dewp": 22,
+    "wdir": 100,
+    "wspd": 13,
     "visib": "6+",
-    "altim": 1012,
+    "altim": 1013,
     "qcField": 0,
     "metarType": "METAR",
-    "rawOb": "METAR SBFZ 310800Z 11007KT 9999 SCT020 26/23 Q1012",
+    "rawOb": "METAR SBFZ 311400Z 10013KT 9999 FEW030 31/22 Q1013",
     "lat": -3.776,
     "lon": -38.533,
     "elev": 32,
     "name": "Fortaleza/Martins Intl, GO, BR",
-    "cover": "SCT",
+    "cover": "FEW",
     "clouds": [
       {
-        "cover": "SCT",
-        "base": 2000
+        "cover": "FEW",
+        "base": 3000
       }
     ],
     "fltCat": "VFR"
